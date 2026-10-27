@@ -1,0 +1,94 @@
+# Codemagic setup for "Fill My Lunch Bag" (iPhone / App Store)
+# This file tells Codemagic how to turn the app into an iPhone app
+# and send it to Apple (TestFlight / App Store Connect).
+
+workflows:
+  ios-release:
+    name: iPhone App Store build
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+
+    integrations:
+      # Same Apple key you already use in Codemagic for Bible Verses and Busy Bee
+      app_store_connect: Codemagic App Store key
+
+    environment:
+      node: 22
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.lizrodriguez.fillmylunchbag
+
+    scripts:
+      - name: Put the app file in the www folder
+        script: |
+          mkdir -p www
+          if [ -f index.html ]; then mv index.html www/index.html; fi
+          ls -la www
+
+      - name: Install Capacitor
+        script: |
+          npm install
+
+      - name: Make the app icon
+        script: |
+          mkdir -p assets
+          cp icon.png assets/icon-download.png
+          # Apple does not allow see-through icons, so flatten it to a solid image
+          sips -s format jpeg assets/icon-download.png --out assets/icon-flat.jpg
+          sips -s format png assets/icon-flat.jpg --out assets/icon.png
+          sips -z 1024 1024 assets/icon.png
+          rm assets/icon-download.png assets/icon-flat.jpg
+
+      - name: Add the iPhone project
+        script: |
+          npx cap add ios
+
+      - name: Make all the iPhone icon sizes
+        script: |
+          npx --yes @capacitor/assets generate --ios --assetPath assets
+
+      - name: Copy the app into the iPhone project
+        script: |
+          npx cap sync ios
+
+      - name: Set version, build number, and permission messages
+        script: |
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0" "$PLIST" || /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string 1.0" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST"
+          # Needed when a creator picks a profile photo (required by Apple)
+          plutil -replace NSPhotoLibraryUsageDescription -string "Choose a profile photo for your Fill My Lunch Bag page." "$PLIST"
+          plutil -replace NSCameraUsageDescription -string "Take a profile photo for your Fill My Lunch Bag page." "$PLIST"
+          # iPhone only (no iPad layout)
+          /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations~ipad" "$PLIST" || true
+          cd ios/App
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2";/TARGETED_DEVICE_FAMILY = 1;/g' App.xcodeproj/project.pbxproj || true
+          agvtool new-version -all $BUILD_NUMBER
+
+      - name: Set up Apple signing
+        script: |
+          xcode-project use-profiles
+
+      - name: Build the iPhone app
+        script: |
+          if [ -d ios/App/App.xcworkspace ]; then
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+          else
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+          fi
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      email:
+        recipients:
+          - lizz84533@gmail.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
