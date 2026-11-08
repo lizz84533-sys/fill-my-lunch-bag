@@ -57,6 +57,13 @@
   .btn.danger { background: transparent; color: var(--apple); border: 1.5px solid #E7B9B4; }
   .link-btn { background: none; border: none; color: var(--kraft-dark); font-weight: 600; padding: 10px; display: block; margin: 6px auto 0; font-size: 15px; }
   .msg { color: var(--apple); font-size: 14px; text-align: center; margin: 8px 0; min-height: 1px; }
+  .oauth-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px 16px; margin:0 0 10px; border-radius:999px; font-size:16px; font-weight:600; }
+  .oauth-btn svg { width:20px; height:20px; flex:none; }
+  .oauth-btn:disabled { opacity:0.55; }
+  .oauth-google { background:#fff; color:#1f1f1f; border:1px solid #cfc2ae; }
+  .oauth-apple { background:#000; color:#fff; border:1px solid #000; }
+  .or-line { display:flex; align-items:center; gap:10px; margin:8px 0 14px; font-size:14px; color:var(--soft); }
+  .or-line::before, .or-line::after { content:""; flex:1; height:1px; background:#d9c7a8; }
   #tsLogin { margin: 4px 0 12px; min-height: 66px; }
 
   /* ---------- Lunches screen ---------- */
@@ -137,6 +144,9 @@
     <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
     <h1 class="hand">Fill My Lunch Bag</h1>
     <p class="sub">Sign up free so anyone who appreciates your work can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? No account needed.</p>
+    <button class="oauth-btn oauth-apple" id="appleBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true" fill="#fff"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-2.99-.79-1.54.02-2.96.9-3.75 2.27-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.24-.02 2.02-1.12 2.77-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.41-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg>Continue with Apple</button>
+    <button class="oauth-btn oauth-google" id="googleBtn" type="button"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.8c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.8c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.2-13.5-10l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
+    <div class="or-line">or use your email</div>
     <input class="field" id="email" type="email" autocomplete="email" autocapitalize="off" placeholder="Email">
     <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password">
     <div id="tsLogin"></div>
@@ -285,7 +295,7 @@
 
   const $ = id => document.getElementById(id);
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, flowType: 'pkce' }
   });
 
   let session = null;
@@ -421,6 +431,61 @@
     $('loginBtn').disabled = false; $('loginBtn').textContent = 'Log in';
   });
   $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+  // ---------- Google / Apple sign-in ----------
+  // Sign-in opens in Safari, then Supabase sends people back to the app with this link
+  const APP_LINK = 'com.lizrodriguez.fillmylunchbag://login';
+  function nativePlugin(name) {
+    const C = window.Capacitor;
+    if (!C || !C.isNativePlatform || !C.isNativePlatform()) return null;
+    return (C.Plugins && C.Plugins[name]) || (C.registerPlugin && C.registerPlugin(name)) || null;
+  }
+  function oauthButtons(on) { $('googleBtn').disabled = !on; $('appleBtn').disabled = !on; }
+  async function oauthSignIn(provider) {
+    const m = $('loginMsg');
+    m.textContent = '';
+    oauthButtons(false);
+    try {
+      const Browser = nativePlugin('Browser');
+      const { data, error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: Browser ? APP_LINK : location.href.split('?')[0], skipBrowserRedirect: !!Browser }
+      });
+      if (error) throw error;
+      if (Browser) await Browser.open({ url: data.url, presentationStyle: 'popover' });
+    } catch (e) {
+      m.textContent = 'Could not open ' + (provider === 'google' ? 'Google' : 'Apple') + ' sign-in. Try again or use your email.';
+    }
+    oauthButtons(true);
+  }
+  $('googleBtn').addEventListener('click', () => { buzz('light'); oauthSignIn('google'); });
+  $('appleBtn').addEventListener('click', () => { buzz('light'); oauthSignIn('apple'); });
+
+  // When Safari sends the person back to the app, finish logging them in
+  async function finishOAuth(url) {
+    if (!url || url.indexOf(APP_LINK) !== 0) return;
+    const Browser = nativePlugin('Browser');
+    try { if (Browser) await Browser.close(); } catch (e) {}
+    const q = new URL(url.replace(APP_LINK, 'https://x/login'));
+    const params = new URLSearchParams(q.search + '&' + q.hash.replace(/^#/, ''));
+    const code = params.get('code');
+    const err = params.get('error_description') || params.get('error');
+    if (err) { showLogin(); $('loginMsg').textContent = 'Sign-in was cancelled or did not work. Try again.'; return; }
+    if (!code) return;
+    show('sLoading');
+    const { data, error } = await sb.auth.exchangeCodeForSession(code);
+    if (error || !data.session) { showLogin(); $('loginMsg').textContent = 'Could not finish signing in. Try again or use your email.'; return; }
+    session = data.session; buzz('success');
+    await afterLogin();
+  }
+  (function listenForAppLink() {
+    const App = nativePlugin('App');
+    if (!App) return;
+    try {
+      App.addListener('appUrlOpen', ev => finishOAuth(ev && ev.url));
+      if (App.getLaunchUrl) App.getLaunchUrl().then(r => r && r.url && finishOAuth(r.url)).catch(() => {});
+    } catch (e) {}
+  })();
+
   $('forgotBtn').addEventListener('click', () => openWeb(SITE + '/'));
   $('newBtn').addEventListener('click', () => openWeb(SITE + '/'));
 

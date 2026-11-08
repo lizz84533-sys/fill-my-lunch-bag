@@ -59,6 +59,13 @@ workflows:
           # Needed when a creator picks a profile photo (required by Apple)
           plutil -replace NSPhotoLibraryUsageDescription -string "Choose a profile photo for your Fill My Lunch Bag page." "$PLIST"
           plutil -replace NSCameraUsageDescription -string "Take a profile photo for your Fill My Lunch Bag page." "$PLIST"
+          # App link so Google / Apple sign-in in Safari can come back to the app
+          /usr/libexec/PlistBuddy -c "Delete :CFBundleURLTypes" "$PLIST" || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLName string com.lizrodriguez.fillmylunchbag" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string com.lizrodriguez.fillmylunchbag" "$PLIST"
           # iPhone only (no iPad layout)
           /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations~ipad" "$PLIST" || true
           cd ios/App
