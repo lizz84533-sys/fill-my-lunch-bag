@@ -160,9 +160,9 @@
 <!-- No page yet -->
 <section class="screen no-tabs hidden" id="sNoPage">
   <div class="login-wrap">
-    <img class="login-logo" src="bag.jpg" alt="">
-    <h1>Almost there</h1>
-    <p class="sub">You're logged in, but you don't have a lunch page yet. Make it on the website, then come back here.</p>
+    <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
+    <h1 class="hand">Almost there</h1>
+    <p class="sub">You're logged in as <b id="noPageEmail"></b>, but this login doesn't have a lunch page yet.<br><br>Already have a page? Tap <b>Log out</b> and sign in the same way you do on the website.</p>
     <button class="btn" id="makePageBtn">Make my page</button>
     <button class="link-btn" id="noPageRefresh">I made it, check again</button>
     <button class="link-btn" id="noPageOut">Log out</button>
@@ -503,7 +503,7 @@
   async function afterLogin() {
     try {
       await loadMe();
-      if (!me) { show('sNoPage'); return; }
+      if (!me) { $('noPageEmail').textContent = (session && session.user && session.user.email) || 'this account'; show('sNoPage'); return; }
       await loadSupporters();
       renderAll();
       checkForNewLunches(true);
