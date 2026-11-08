@@ -16,6 +16,7 @@
     --apple: #B3261E;
     --leaf: #5E7D3A;
   }
+  @font-face { font-family: "Lunch Hand"; src: url("fonts/handwriting.woff2") format("woff2"); font-display: swap; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
   body {
@@ -45,6 +46,7 @@
   .login-wrap { min-height: 100%; display: flex; flex-direction: column; justify-content: center; max-width: 420px; margin: 0 auto; }
   .login-logo { width: 160px; height: 160px; border-radius: 50%; display: block; margin: 0 auto 14px; object-fit: cover; box-shadow: 0 6px 20px rgba(91,60,30,0.18); }
   .login-wrap h1 { text-align: center; font-size: 28px; }
+  .login-wrap h1.hand { font-family: "Lunch Hand", cursive; font-weight: 400; font-size: 38px; line-height: 1.2; margin-bottom: 14px; }
   .login-wrap .sub { text-align: center; color: var(--soft); margin: 6px 0 22px; }
   .field { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-size: 16px; color: var(--ink); margin-bottom: 10px; -webkit-user-select: text; user-select: text; }
   .field:focus { outline: 2px solid var(--kraft); border-color: transparent; }
@@ -132,7 +134,7 @@
 <section class="screen no-tabs hidden" id="sLogin">
   <div class="login-wrap">
     <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
-    <h1>Fill My Lunch Bag</h1>
+    <h1 class="hand">Fill My Lunch Bag</h1>
     <p class="sub">See who bought you lunch and watch your bag fill up.</p>
     <input class="field" id="email" type="email" autocomplete="email" autocapitalize="off" placeholder="Email">
     <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password">
