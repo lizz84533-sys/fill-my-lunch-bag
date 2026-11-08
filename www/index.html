@@ -74,8 +74,6 @@
   .bag-svg { width: 116px; flex: none; }
   .goal-pic { position: relative; width: 124px; height: 124px; flex: none; }
   .goal-pic img { width: 100%; height: 100%; border-radius: 50%; display: block; box-shadow: 0 4px 14px rgba(91,60,30,0.18); }
-  .bag-food { position: absolute; font-size: 21px; line-height: 1; opacity: 0; transform: translateY(-26px) scale(0.5); transition: opacity 0.4s ease, transform 0.7s cubic-bezier(.2,1.5,.4,1); }
-  .bag-food.in { opacity: 1; transform: translateY(0) scale(1); }
   .bag-info { flex: 1; min-width: 0; }
   .bag-info h2 { font-size: 20px; margin: 4px 0 6px; overflow: hidden; text-overflow: ellipsis; }
   .bag-info .amt { font-size: 15px; color: var(--soft); }
@@ -186,10 +184,6 @@
     <div id="goalBox" class="bag-card">
       <div class="goal-pic" aria-hidden="true">
         <img src="logo.jpg" alt="">
-        <span class="bag-food" data-at="1"  style="left:33%;top:25%;">🥪</span>
-        <span class="bag-food" data-at="30" style="left:51%;top:26%;">🍎</span>
-        <span class="bag-food" data-at="60" style="left:42%;top:20%;">🍌</span>
-        <span class="bag-food" data-at="95" style="left:41%;top:14%;font-size:24px;">🧁</span>
       </div>
       <div class="bag-info">
         <div class="label">Fill the bag</div>
@@ -548,10 +542,7 @@
     $('acctEmail').textContent = 'Logged in as ' + (session && session.user ? session.user.email : '');
   }
 
-  // Food pops into the open bag as the goal fills: sandwich, banana, cookie, then a cupcake at 100%
-  function setBagLevel(pct) {
-    document.querySelectorAll('.bag-food').forEach(f => f.classList.toggle('in', pct >= Number(f.dataset.at)));
-  }
+  function setBagLevel(pct) {}
 
   function renderShare() {
     if (!me) return;
