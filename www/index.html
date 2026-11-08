@@ -43,7 +43,7 @@
 
   /* ---------- Login ---------- */
   .login-wrap { min-height: 100%; display: flex; flex-direction: column; justify-content: center; max-width: 420px; margin: 0 auto; }
-  .login-logo { width: 120px; height: 120px; border-radius: 28px; display: block; margin: 0 auto 14px; object-fit: cover; box-shadow: 0 6px 20px rgba(91,60,30,0.18); }
+  .login-logo { width: 160px; height: 160px; border-radius: 50%; display: block; margin: 0 auto 14px; object-fit: cover; box-shadow: 0 6px 20px rgba(91,60,30,0.18); }
   .login-wrap h1 { text-align: center; font-size: 28px; }
   .login-wrap .sub { text-align: center; color: var(--soft); margin: 6px 0 22px; }
   .field { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-size: 16px; color: var(--ink); margin-bottom: 10px; -webkit-user-select: text; user-select: text; }
@@ -118,20 +118,20 @@
   @keyframes popin { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @keyframes bounce { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-14px) rotate(-8deg); } 70% { transform: translateY(0) rotate(4deg); } }
   .loading { min-height: 100%; display: grid; place-items: center; text-align: center; color: var(--soft); }
-  .loading img { width: 96px; height: 96px; border-radius: 24px; display: block; margin: 0 auto 12px; }
+  .loading img { width: 140px; height: 140px; border-radius: 50%; display: block; margin: 0 auto 12px; }
 </style>
 </head>
 <body>
 
 <!-- Loading -->
 <section class="screen no-tabs" id="sLoading">
-  <div class="loading"><div><img src="bag.jpg" alt=""><div>Opening your lunch bag...</div></div></div>
+  <div class="loading"><div><img src="logo.jpg" alt=""><div>Opening your lunch bag...</div></div></div>
 </section>
 
 <!-- Login -->
 <section class="screen no-tabs hidden" id="sLogin">
   <div class="login-wrap">
-    <img class="login-logo" src="bag.jpg" alt="Fill My Lunch Bag">
+    <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
     <h1>Fill My Lunch Bag</h1>
     <p class="sub">See who bought you lunch and watch your bag fill up.</p>
     <input class="field" id="email" type="email" autocomplete="email" autocapitalize="off" placeholder="Email">
