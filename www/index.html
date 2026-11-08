@@ -194,7 +194,7 @@
     </div>
     <div id="goalNone" class="goal-empty hidden">
       <div class="label">Fill the bag</div>
-      <p style="margin:6px 0 0;">Set a lunch goal and watch your bag fill up every time someone buys you lunch.</p>
+      <p style="margin:6px 0 0;">Set a lunch goal and watch your bag fill up every time someone tips you lunch.</p>
       <button class="btn ghost" id="setGoalBtn">Set my goal</button>
     </div>
   </div>
@@ -512,10 +512,14 @@
     const allTotal = sumAmt(supporters);
     if (Number(me.goal_amount) > 0) {
       $('goalBox').classList.remove('hidden'); $('goalNone').classList.add('hidden');
-      const pct = Math.min(100, Math.round((allTotal / Number(me.goal_amount)) * 100));
-      $('goalName').textContent = me.goal_label || 'My lunch goal';
+      // Count the goal in lunches, not dollars, so it reads like a tip jar
+      const price = Number(me.price) > 0 ? Number(me.price) : 5;
+      const goalLunches = Math.max(1, Math.round(Number(me.goal_amount) / price));
+      const got = countLunches(supporters);
+      const pct = Math.min(100, Math.round((got / goalLunches) * 100));
+      $('goalName').textContent = 'Lunch goal';
       $('goalPct').textContent = pct + '%';
-      $('goalAmt').textContent = '$' + money(allTotal) + ' of $' + money(me.goal_amount);
+      $('goalAmt').textContent = got + ' of ' + plural(goalLunches);
       setBagLevel(pct);
     } else {
       $('goalBox').classList.add('hidden'); $('goalNone').classList.remove('hidden');
