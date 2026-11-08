@@ -20,11 +20,10 @@ workflows:
         bundle_identifier: com.lizrodriguez.fillmylunchbag
 
     scripts:
-      - name: Put the app file in the www folder
+      - name: Check the app screens are in the www folder
         script: |
-          mkdir -p www
-          if [ -f index.html ]; then mv index.html www/index.html; fi
-          ls -la www
+          ls -la www www/vendor
+          test -f www/index.html
 
       - name: Install Capacitor
         script: |
@@ -55,7 +54,7 @@ workflows:
       - name: Set version, build number, and permission messages
         script: |
           PLIST=ios/App/App/Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0" "$PLIST" || /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string 1.0" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.1" "$PLIST" || /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string 1.1" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST"
           # Needed when a creator picks a profile photo (required by Apple)
           plutil -replace NSPhotoLibraryUsageDescription -string "Choose a profile photo for your Fill My Lunch Bag page." "$PLIST"

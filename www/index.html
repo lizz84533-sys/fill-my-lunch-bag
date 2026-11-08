@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Fill My Lunch Bag</title>
+<style>
+  :root {
+    --paper: #FAF3E6;
+    --card: #FFFDF8;
+    --kraft: #C9A77C;
+    --kraft-dark: #8B5A2B;
+    --ink: #3B2A1E;
+    --soft: #7A6552;
+    --line: #E8DCC6;
+    --apple: #B3261E;
+    --leaf: #5E7D3A;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-user-select: none; user-select: none;
+    overscroll-behavior: none;
+  }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; margin: 0; }
+  button { font: inherit; cursor: pointer; }
+  .hidden { display: none !important; }
+
+  /* ---------- Screens ---------- */
+  .screen { position: fixed; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 96px); }
+  .screen.no-tabs { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
+  .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .head h1 { font-size: 26px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--kraft-dark); font-size: 18px; display: grid; place-items: center; }
+  .icon-btn.spin span { display: inline-block; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px; margin-bottom: 14px; }
+  .label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); font-weight: 600; }
+
+  /* ---------- Login ---------- */
+  .login-wrap { min-height: 100%; display: flex; flex-direction: column; justify-content: center; max-width: 420px; margin: 0 auto; }
+  .login-logo { width: 120px; height: 120px; border-radius: 28px; display: block; margin: 0 auto 14px; object-fit: cover; box-shadow: 0 6px 20px rgba(91,60,30,0.18); }
+  .login-wrap h1 { text-align: center; font-size: 28px; }
+  .login-wrap .sub { text-align: center; color: var(--soft); margin: 6px 0 22px; }
+  .field { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-size: 16px; color: var(--ink); margin-bottom: 10px; -webkit-user-select: text; user-select: text; }
+  .field:focus { outline: 2px solid var(--kraft); border-color: transparent; }
+  .btn { width: 100%; padding: 15px; border-radius: 999px; border: none; background: var(--kraft-dark); color: #fff; font-weight: 700; font-size: 16px; }
+  .btn:disabled { opacity: 0.55; }
+  .btn.ghost { background: transparent; color: var(--kraft-dark); border: 1.5px solid var(--kraft); }
+  .btn.danger { background: transparent; color: var(--apple); border: 1.5px solid #E7B9B4; }
+  .link-btn { background: none; border: none; color: var(--kraft-dark); font-weight: 600; padding: 10px; display: block; margin: 6px auto 0; font-size: 15px; }
+  .msg { color: var(--apple); font-size: 14px; text-align: center; margin: 8px 0; min-height: 1px; }
+  #tsLogin { margin: 4px 0 12px; min-height: 66px; }
+
+  /* ---------- Lunches screen ---------- */
+  .hello { color: var(--soft); margin: 2px 0 0; font-size: 14px; }
+  .bag-card { display: flex; gap: 16px; align-items: center; }
+  .bag-svg { width: 116px; flex: none; }
+  .bag-info { flex: 1; min-width: 0; }
+  .bag-info h2 { font-size: 20px; margin: 4px 0 6px; overflow: hidden; text-overflow: ellipsis; }
+  .bag-info .amt { font-size: 15px; color: var(--soft); }
+  .bag-info .pct { font-family: Georgia, serif; font-size: 34px; font-weight: 700; color: var(--kraft-dark); line-height: 1.1; }
+  .goal-empty { color: var(--soft); font-size: 14px; line-height: 1.5; }
+  .goal-empty button { margin-top: 10px; width: auto; padding: 10px 18px; font-size: 14px; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .stat .big { font-family: Georgia, serif; font-size: 26px; font-weight: 700; margin-top: 4px; }
+  .stat .small { font-size: 13px; color: var(--soft); }
+
+  .list-head { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 2px 8px; }
+  .list-head h3 { font-size: 18px; }
+  .who { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .who:first-child { border-top: none; padding-top: 2px; }
+  .avatar { width: 40px; height: 40px; flex: none; border-radius: 50%; background: #EFE2CC; color: var(--kraft-dark); display: grid; place-items: center; font-weight: 700; }
+  .who .body { flex: 1; min-width: 0; }
+  .who .name { font-weight: 600; font-size: 15px; }
+  .who .note { font-size: 14px; color: var(--ink); margin-top: 3px; background: #F6EEDF; border-radius: 10px; padding: 7px 10px; -webkit-user-select: text; user-select: text; word-wrap: break-word; }
+  .who .when { font-size: 12px; color: var(--soft); margin-top: 3px; }
+  .who .money { font-weight: 700; color: var(--leaf); white-space: nowrap; }
+  .empty { color: var(--soft); text-align: center; padding: 18px 8px; line-height: 1.5; }
+
+  /* ---------- Share screen ---------- */
+  .qr-card { text-align: center; }
+  .qr-box { width: 236px; height: 236px; margin: 8px auto 12px; background: #fff; border-radius: 18px; padding: 14px; border: 1px solid var(--line); }
+  .qr-box svg { width: 100%; height: 100%; display: block; }
+  .qr-name { font-family: Georgia, serif; font-size: 22px; font-weight: 700; }
+  .qr-link { color: var(--soft); font-size: 14px; margin: 4px 0 14px; word-break: break-all; -webkit-user-select: text; user-select: text; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tip { color: var(--soft); font-size: 14px; line-height: 1.5; }
+
+  /* ---------- Settings ---------- */
+  .set-item { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 15px 2px; border: none; border-top: 1px solid var(--line); background: none; color: var(--ink); font-size: 16px; text-align: left; }
+  .set-item:first-of-type { border-top: none; }
+  .set-item .arrow { color: var(--soft); }
+  .tiny { color: var(--soft); font-size: 12px; text-align: center; margin-top: 18px; line-height: 1.6; }
+
+  /* ---------- Tab bar ---------- */
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: rgba(255,253,248,0.96); border-top: 1px solid var(--line);
+    padding: 6px 8px calc(env(safe-area-inset-bottom) + 6px); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 5; }
+  .tab { flex: 1; border: none; background: none; color: var(--soft); padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; }
+  .tab .ic { font-size: 22px; filter: grayscale(1); opacity: 0.65; }
+  .tab.on { color: var(--kraft-dark); }
+  .tab.on .ic { filter: none; opacity: 1; }
+
+  /* ---------- Toast + new lunch pop ---------- */
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 90px); transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: all 0.25s; z-index: 20; max-width: 88%; text-align: center; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .pop { position: fixed; inset: 0; background: rgba(59,42,30,0.45); display: grid; place-items: center; z-index: 30; padding: 24px; }
+  .pop-card { background: var(--card); border-radius: 26px; padding: 26px 22px; text-align: center; max-width: 340px; width: 100%; animation: popin 0.35s cubic-bezier(.2,1.4,.4,1); }
+  .pop-card .emo { font-size: 56px; animation: bounce 0.9s ease 0.2s; }
+  .pop-card h2 { font-size: 24px; margin: 6px 0 6px; }
+  .pop-card p { color: var(--soft); margin: 0 0 18px; line-height: 1.5; }
+  @keyframes popin { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-14px) rotate(-8deg); } 70% { transform: translateY(0) rotate(4deg); } }
+  .loading { min-height: 100%; display: grid; place-items: center; text-align: center; color: var(--soft); }
+  .loading img { width: 96px; height: 96px; border-radius: 24px; display: block; margin: 0 auto 12px; }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<section class="screen no-tabs" id="sLoading">
+  <div class="loading"><div><img src="bag.jpg" alt=""><div>Opening your lunch bag...</div></div></div>
+</section>
+
+<!-- Login -->
+<section class="screen no-tabs hidden" id="sLogin">
+  <div class="login-wrap">
+    <img class="login-logo" src="bag.jpg" alt="Fill My Lunch Bag">
+    <h1>Fill My Lunch Bag</h1>
+    <p class="sub">See who bought you lunch and watch your bag fill up.</p>
+    <input class="field" id="email" type="email" autocomplete="email" autocapitalize="off" placeholder="Email">
+    <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password">
+    <div id="tsLogin"></div>
+    <button class="btn" id="loginBtn">Log in</button>
+    <div class="msg" id="loginMsg"></div>
+    <button class="link-btn" id="forgotBtn">Forgot password?</button>
+    <button class="link-btn" id="newBtn">New here? Make your page</button>
+  </div>
+</section>
+
+<!-- No page yet -->
+<section class="screen no-tabs hidden" id="sNoPage">
+  <div class="login-wrap">
+    <img class="login-logo" src="bag.jpg" alt="">
+    <h1>Almost there</h1>
+    <p class="sub">You're logged in, but you don't have a lunch page yet. Make it on the website, then come back here.</p>
+    <button class="btn" id="makePageBtn">Make my page</button>
+    <button class="link-btn" id="noPageRefresh">I made it, check again</button>
+    <button class="link-btn" id="noPageOut">Log out</button>
+  </div>
+</section>
+
+<!-- Lunches -->
+<section class="screen hidden" id="sLunches">
+  <div class="head">
+    <div><h1>Your lunch bag</h1><p class="hello" id="hello"></p></div>
+    <button class="icon-btn" id="refreshBtn" aria-label="Refresh"><span>↻</span></button>
+  </div>
+
+  <div class="card">
+    <div id="goalBox" class="bag-card">
+      <svg class="bag-svg" viewBox="0 0 120 150" aria-hidden="true">
+        <defs>
+          <clipPath id="bagClip"><path d="M18 40 L102 40 L108 142 L12 142 Z"/></clipPath>
+          <linearGradient id="foodGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#E8A04B"/><stop offset="1" stop-color="#C46A2B"/>
+          </linearGradient>
+        </defs>
+        <path d="M24 40 L32 14 L88 14 L96 40 Z" fill="#B48A5C"/>
+        <path d="M18 40 L102 40 L108 142 L12 142 Z" fill="#D9BC92"/>
+        <g clip-path="url(#bagClip)">
+          <rect id="bagFill" x="0" y="142" width="120" height="0" fill="url(#foodGrad)" style="transition: y 1.2s ease, height 1.2s ease"/>
+          <path id="bagWave" d="" fill="#F3C47A" opacity="0.7"/>
+        </g>
+        <path d="M18 40 L102 40 L108 142 L12 142 Z" fill="none" stroke="#8B5A2B" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M30 58 L36 128 M90 58 L84 128" stroke="#8B5A2B" stroke-width="1" opacity="0.25"/>
+        <circle cx="96" cy="132" r="13" fill="#B3261E"/>
+        <path d="M96 119 q2 -7 8 -8" stroke="#5E7D3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="bag-info">
+        <div class="label">Fill the bag</div>
+        <h2 id="goalName">Goal</h2>
+        <div class="pct" id="goalPct">0%</div>
+        <div class="amt" id="goalAmt">$0 of $0</div>
+      </div>
+    </div>
+    <div id="goalNone" class="goal-empty hidden">
+      <div class="label">Fill the bag</div>
+      <p style="margin:6px 0 0;">Set a lunch goal and watch your bag fill up every time someone buys you lunch.</p>
+      <button class="btn ghost" id="setGoalBtn">Set my goal</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Last 30 days</div><div class="big" id="total30">$0</div><div class="small" id="count30">0 lunches</div></div>
+    <div class="stat"><div class="label">All time</div><div class="big" id="totalAll">$0</div><div class="small" id="countAll">0 lunches</div></div>
+  </div>
+
+  <div class="list-head"><h3>Who bought you lunch</h3></div>
+  <div class="card" id="whoList"></div>
+</section>
+
+<!-- Share -->
+<section class="screen hidden" id="sShare">
+  <div class="head"><h1>Share your bag</h1></div>
+  <div class="card qr-card">
+    <div class="label">Show this code</div>
+    <div class="qr-box" id="qrBox"></div>
+    <div class="qr-name" id="qrName"></div>
+    <div class="qr-link" id="qrLink"></div>
+    <div class="row2">
+      <button class="btn" id="shareBtn">Share link</button>
+      <button class="btn ghost" id="copyBtn">Copy link</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="font-size:18px;margin-bottom:6px;">Tips</h3>
+    <p class="tip">Turn your screen toward someone and let them scan the code with their camera. It opens your lunch page so they can buy you lunch.</p>
+    <p class="tip" style="margin-bottom:0;">Put your link in your bio, on your stream, or at the end of your videos.</p>
+  </div>
+</section>
+
+<!-- Settings -->
+<section class="screen hidden" id="sSettings">
+  <div class="head"><h1>Settings</h1></div>
+  <div class="card">
+    <div class="label" style="margin-bottom:4px;">Your page</div>
+    <button class="set-item" id="editPageBtn">Edit my page, posts and messages <span class="arrow">↗</span></button>
+    <button class="set-item" id="viewPageBtn">See my page like supporters do <span class="arrow">↗</span></button>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:4px;">App</div>
+    <button class="set-item" id="soundBtn">Crunch sound for new lunches <span class="arrow" id="soundState">On</span></button>
+    <button class="set-item" id="termsBtn">Terms and privacy <span class="arrow">↗</span></button>
+    <button class="set-item" id="helpBtn">Get help <span class="arrow">↗</span></button>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px;">Account</div>
+    <p class="tip" id="acctEmail" style="margin:0 0 12px;"></p>
+    <button class="btn ghost" id="logoutBtn">Log out</button>
+    <div style="height:10px"></div>
+    <button class="btn danger" id="deleteBtn">Delete my account</button>
+  </div>
+  <p class="tiny">Fill My Lunch Bag · Oxnard, California<br>buylunchh@gmail.com</p>
+</section>
+
+<!-- Tab bar -->
+<nav class="tabs hidden" id="tabs">
+  <button class="tab on" data-tab="sLunches"><span class="ic">🛍️</span>Lunches</button>
+  <button class="tab" data-tab="sShare"><span class="ic">📲</span>Share</button>
+  <button class="tab" data-tab="sSettings"><span class="ic">⚙️</span>Settings</button>
+</nav>
+
+<!-- New lunch pop-up -->
+<div class="pop hidden" id="pop">
+  <div class="pop-card">
+    <div class="emo">🍎</div>
+    <h2 id="popTitle">Someone filled your bag!</h2>
+    <p id="popText"></p>
+    <button class="btn" id="popClose">Yum, thanks!</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="vendor/supabase.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script>
+(function () {
+  // Same Supabase project and Turnstile key as the website (both are public keys)
+  const SUPABASE_URL = 'https://efqalthdqcfnkzwzpfvr.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_BDxE_543rLQ3_EzcegAytQ_qZiFmoYw';
+  const TURNSTILE_SITE_KEY = '0x4AAAAAAFeH7D2IFzpRZKZp';
+  const SITE = 'https://buylunch.netlify.app';
+  const HELP_EMAIL = 'buylunchh@gmail.com';
+
+  const $ = id => document.getElementById(id);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+  });
+
+  let session = null;
+  let me = null;
+  let supporters = [];
+  let pollTimer = null;
+
+  // ---------- Small helpers ----------
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function money(n) { const v = Math.round((Number(n) || 0) * 100) / 100; return Number.isInteger(v) ? String(v) : v.toFixed(2); }
+  function sumAmt(list) { return Math.round(list.reduce((a, s) => a + Number(s.amount || 0), 0) * 100) / 100; }
+  function countLunches(list) { return list.reduce((a, s) => a + (Number(s.qty) || 1), 0); }
+  function plural(n) { return n + (n === 1 ? ' lunch' : ' lunches'); }
+  function initial(name) { return (String(name || '').trim()[0] || '🍎').toUpperCase(); }
+  function linkFor(handle) { return SITE + '/?u=' + handle; }
+  function timeAgo(d) {
+    const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + ' min ago';
+    if (s < 86400) return Math.floor(s / 3600) + ' hr ago';
+    if (s < 604800) return Math.floor(s / 86400) + (Math.floor(s / 86400) === 1 ? ' day ago' : ' days ago');
+    return new Date(d).toLocaleDateString();
+  }
+  function store(key, val) { try { if (val === undefined) return localStorage.getItem(key); localStorage.setItem(key, val); } catch (e) { return null; } }
+
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // Opens a web page in Safari (the app itself only shows its own screens)
+  function openWeb(url) {
+    // In the iPhone app, any outside web address is handed to Safari by the app
+    const C = window.Capacitor;
+    if (C && C.isNativePlatform && C.isNativePlatform()) { location.href = url; return; }
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  // ---------- iPhone touches: buzz + crunch ----------
+  function buzz(kind) {
+    try {
+      const C = window.Capacitor;
+      if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;
+      const H = (C.Plugins && C.Plugins.Haptics) || (C.registerPlugin && C.registerPlugin('Haptics'));
+      if (!H) return;
+      if (kind === 'success') H.notification({ type: 'SUCCESS' });
+      else H.impact({ style: kind === 'heavy' ? 'HEAVY' : 'LIGHT' });
+    } catch (e) {}
+  }
+  function soundOn() { return store('fmlb_sound') !== 'off'; }
+  let audioCtx = null;
+  function crunch() {
+    if (!soundOn()) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime, sr = audioCtx.sampleRate;
+      const master = audioCtx.createGain(); master.gain.value = 0.9; master.connect(audioCtx.destination);
+      // a few short bursts of filtered noise sound like biting an apple
+      [0, 0.07, 0.15].forEach((at, i) => {
+        const dur = 0.09 - i * 0.015;
+        const buf = audioCtx.createBuffer(1, Math.floor(sr * dur), sr);
+        const d = buf.getChannelData(0);
+        for (let k = 0; k < d.length; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / d.length, 1.6);
+        const src = audioCtx.createBufferSource(); src.buffer = buf;
+        const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400 + i * 900; bp.Q.value = 0.8;
+        const g = audioCtx.createGain(); g.gain.setValueAtTime(0.9 - i * 0.2, now + at); g.gain.exponentialRampToValueAtTime(0.01, now + at + dur);
+        src.connect(bp); bp.connect(g); g.connect(master);
+        src.start(now + at); src.stop(now + at + dur);
+      });
+    } catch (e) {}
+  }
+
+  // ---------- Screens ----------
+  const SCREENS = ['sLoading', 'sLogin', 'sNoPage', 'sLunches', 'sShare', 'sSettings'];
+  function show(id) {
+    SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id));
+    const tabbed = ['sLunches', 'sShare', 'sSettings'].indexOf(id) !== -1;
+    $('tabs').classList.toggle('hidden', !tabbed);
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
+    if (id === 'sShare') renderShare();
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { buzz('light'); show(t.dataset.tab); }));
+
+  // ---------- Bot check for login (Cloudflare Turnstile, same as the website) ----------
+  let tsWidget = null, tsToken = null, tsTries = 0;
+  function mountTurnstile() {
+    if (tsWidget !== null) return;
+    if (!window.turnstile) {
+      if (tsTries++ < 40) setTimeout(mountTurnstile, 300);
+      else $('loginMsg').textContent = 'Could not load the "Verify you are human" check. Check your internet and reopen the app.';
+      return;
+    }
+    tsWidget = window.turnstile.render('#tsLogin', {
+      sitekey: TURNSTILE_SITE_KEY, size: 'flexible', theme: 'light',
+      callback: t => { tsToken = t; $('loginMsg').textContent = ''; },
+      'expired-callback': () => { tsToken = null; },
+      'error-callback': () => { tsToken = null; $('loginMsg').textContent = 'The "Verify you are human" check had a problem. Try again in a moment.'; }
+    });
+  }
+  function resetTurnstile() { tsToken = null; if (tsWidget !== null && window.turnstile) window.turnstile.reset(tsWidget); }
+  function loadTurnstileScript() {
+    if (document.getElementById('tsScript')) return;
+    const s = document.createElement('script');
+    s.id = 'tsScript'; s.async = true; s.defer = true;
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    document.head.appendChild(s);
+  }
+
+  // ---------- Login ----------
+  function showLogin() {
+    stopPolling();
+    show('sLogin');
+    loadTurnstileScript();
+    mountTurnstile();
+  }
+  $('loginBtn').addEventListener('click', async () => {
+    const email = $('email').value.trim(), password = $('password').value;
+    const m = $('loginMsg');
+    if (!email || !password) { m.textContent = 'Enter your email and password.'; return; }
+    if (!tsToken) { m.textContent = 'Please finish the "Verify you are human" check first.'; return; }
+    $('loginBtn').disabled = true; $('loginBtn').textContent = 'Logging in...';
+    m.textContent = '';
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken: tsToken } });
+      if (error) { m.textContent = error.message === 'Invalid login credentials' ? 'That email or password is not right.' : error.message; }
+      else { session = data.session; buzz('success'); $('password').value = ''; await afterLogin(); }
+    } catch (e) { m.textContent = 'Something went wrong. Check your internet and try again.'; }
+    resetTurnstile();
+    $('loginBtn').disabled = false; $('loginBtn').textContent = 'Log in';
+  });
+  $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+  $('forgotBtn').addEventListener('click', () => openWeb(SITE + '/'));
+  $('newBtn').addEventListener('click', () => openWeb(SITE + '/'));
+
+  // ---------- After login ----------
+  async function loadMe() {
+    const { data, error } = await sb.from('lunch_profiles').select('*').eq('id', session.user.id).maybeSingle();
+    if (error) throw error;
+    me = data || null;
+  }
+  async function loadSupporters() {
+    const { data, error } = await sb.from('lunch_supporters').select('*').eq('creator_id', me.id).order('created_at', { ascending: false });
+    if (error) throw error;
+    supporters = data || [];
+  }
+  async function afterLogin() {
+    try {
+      await loadMe();
+      if (!me) { show('sNoPage'); return; }
+      await loadSupporters();
+      renderAll();
+      checkForNewLunches(true);
+      show('sLunches');
+      startPolling();
+    } catch (e) {
+      show('sLunches');
+      $('whoList').innerHTML = '<p class="empty">Could not load your lunches. Check your internet and tap ↻.</p>';
+    }
+  }
+
+  // ---------- Render ----------
+  function renderAll() {
+    $('hello').textContent = 'Hi, ' + (me.name || 'friend') + ' 👋';
+
+    // Fill the bag goal
+    const allTotal = sumAmt(supporters);
+    if (Number(me.goal_amount) > 0) {
+      $('goalBox').classList.remove('hidden'); $('goalNone').classList.add('hidden');
+      const pct = Math.min(100, Math.round((allTotal / Number(me.goal_amount)) * 100));
+      $('goalName').textContent = me.goal_label || 'My lunch goal';
+      $('goalPct').textContent = pct + '%';
+      $('goalAmt').textContent = '$' + money(allTotal) + ' of $' + money(me.goal_amount);
+      setBagLevel(pct);
+    } else {
+      $('goalBox').classList.add('hidden'); $('goalNone').classList.remove('hidden');
+    }
+
+    // Totals
+    const cutoff = Date.now() - 30 * 86400000;
+    const last30 = supporters.filter(s => new Date(s.created_at).getTime() >= cutoff);
+    $('total30').textContent = '$' + money(sumAmt(last30));
+    $('count30').textContent = plural(countLunches(last30));
+    $('totalAll').textContent = '$' + money(allTotal);
+    $('countAll').textContent = plural(countLunches(supporters));
+
+    // Who bought lunch
+    $('whoList').innerHTML = supporters.length ? supporters.slice(0, 50).map(s => {
+      const qty = Number(s.qty) || 1;
+      return '<div class="who"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
+        '<div class="name">' + esc(s.name || 'Someone') + ' bought you ' + plural(qty) + (s.weekly ? ' · weekly' : '') + '</div>' +
+        (s.message ? '<div class="note">' + esc(s.message) + '</div>' : '') +
+        '<div class="when">' + timeAgo(s.created_at) + '</div></div>' +
+        '<div class="money">+$' + money(s.amount) + '</div></div>';
+    }).join('') : '<p class="empty">No lunches yet. Share your bag from the Share tab and your first lunch will show up here. 🍎</p>';
+
+    $('acctEmail').textContent = 'Logged in as ' + (session && session.user ? session.user.email : '');
+  }
+
+  // The bag fills from the bottom with a little wavy top
+  function setBagLevel(pct) {
+    const top = 142, bottom = 40; // inside of the bag, from bottom (142) up to the fold (40)
+    const h = (top - bottom) * (pct / 100);
+    const y = top - h;
+    const fill = $('bagFill');
+    fill.setAttribute('y', y); fill.setAttribute('height', h);
+    $('bagWave').setAttribute('d', pct > 0 && pct < 100
+      ? 'M0 ' + y + ' q15 -6 30 0 t30 0 t30 0 t30 0 V' + (y + 6) + ' H0 Z' : '');
+  }
+
+  function renderShare() {
+    if (!me) return;
+    const url = linkFor(me.handle);
+    $('qrName').textContent = me.name || 'My lunch bag';
+    $('qrLink').textContent = url.replace('https://', '');
+    try {
+      const qr = window.qrcode(0, 'M');
+      qr.addData(url); qr.make();
+      $('qrBox').innerHTML = qr.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+    } catch (e) { $('qrBox').innerHTML = '<p class="empty">Could not make the code.</p>'; }
+  }
+  $('shareBtn').addEventListener('click', () => {
+    const url = linkFor(me.handle);
+    buzz('light');
+    if (navigator.share) navigator.share({ title: 'Fill My Lunch Bag', text: 'Buy me lunch on Fill My Lunch Bag 🍎', url }).catch(() => {});
+    else $('copyBtn').click();
+  });
+  $('copyBtn').addEventListener('click', () => {
+    const url = linkFor(me.handle);
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => { buzz('light'); toast('Link copied'); }, () => toast(url));
+    else toast(url);
+  });
+
+  // ---------- New lunch alert while the app is open ----------
+  function checkForNewLunches(firstLoad) {
+    const newest = supporters[0];
+    const seenKey = 'fmlb_seen_' + me.id;
+    const lastSeen = store(seenKey);
+    if (!newest) return;
+    if (firstLoad && !lastSeen) { store(seenKey, newest.created_at); return; }
+    const fresh = supporters.filter(s => !lastSeen || new Date(s.created_at) > new Date(lastSeen));
+    if (!fresh.length) return;
+    store(seenKey, newest.created_at);
+    const n = countLunches(fresh);
+    const who = fresh.length === 1 ? (fresh[0].name || 'Someone') : fresh.length + ' people';
+    $('popTitle').textContent = n === 1 ? 'Someone filled your bag!' : 'Your bag is filling up!';
+    $('popText').textContent = who + ' bought you ' + plural(n) + ' (+$' + money(sumAmt(fresh)) + ')';
+    $('pop').classList.remove('hidden');
+    buzz('success'); crunch();
+  }
+  $('popClose').addEventListener('click', () => $('pop').classList.add('hidden'));
+
+  async function refresh(manual) {
+    if (!session || !me) return;
+    const btn = $('refreshBtn');
+    if (manual) btn.classList.add('spin');
+    try {
+      await loadMe();
+      if (!me) { show('sNoPage'); return; }
+      await loadSupporters();
+      renderAll();
+      checkForNewLunches(false);
+      if (manual) buzz('light');
+    } catch (e) { if (manual) toast('Could not refresh. Check your internet.'); }
+    btn.classList.remove('spin');
+  }
+  $('refreshBtn').addEventListener('click', () => refresh(true));
+  function startPolling() { stopPolling(); pollTimer = setInterval(() => { if (!document.hidden) refresh(false); }, 30000); }
+  function stopPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = null; }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(false); });
+
+  // ---------- No page yet ----------
+  $('makePageBtn').addEventListener('click', () => openWeb(SITE + '/'));
+  $('noPageRefresh').addEventListener('click', () => afterLogin());
+  $('noPageOut').addEventListener('click', () => logout());
+
+  // ---------- Settings ----------
+  function paintSound() { $('soundState').textContent = soundOn() ? 'On' : 'Off'; }
+  $('soundBtn').addEventListener('click', () => { store('fmlb_sound', soundOn() ? 'off' : 'on'); paintSound(); if (soundOn()) crunch(); buzz('light'); });
+  $('editPageBtn').addEventListener('click', () => openWeb(SITE + '/'));
+  $('setGoalBtn').addEventListener('click', () => openWeb(SITE + '/'));
+  $('viewPageBtn').addEventListener('click', () => openWeb(linkFor(me.handle)));
+  $('termsBtn').addEventListener('click', () => openWeb(SITE + '/terms.html'));
+  $('helpBtn').addEventListener('click', () => openWeb('mailto:' + HELP_EMAIL + '?subject=' + encodeURIComponent('Fill My Lunch Bag app help')));
+
+  async function logout() {
+    stopPolling();
+    try { await sb.auth.signOut(); } catch (e) {}
+    session = null; me = null; supporters = [];
+    showLogin();
+  }
+  $('logoutBtn').addEventListener('click', logout);
+
+  $('deleteBtn').addEventListener('click', async () => {
+    const typed = prompt('This deletes your page, posts, supporters list and login for good.\n\nType DELETE to confirm.');
+    if (typed === null) return;
+    if (typed.trim().toUpperCase() !== 'DELETE') { toast('Not deleted. You need to type DELETE.'); return; }
+    const btn = $('deleteBtn');
+    btn.disabled = true; btn.textContent = 'Deleting...';
+    try {
+      try {
+        const { data: files } = await sb.storage.from('lunch-avatars').list(me.id);
+        if (files && files.length) await sb.storage.from('lunch-avatars').remove(files.map(f => me.id + '/' + f.name));
+      } catch (e) {}
+      const { error } = await sb.rpc('delete_my_account');
+      if (error) throw error;
+      try { await sb.auth.signOut(); } catch (e) {}
+      alert('Your account was deleted.');
+      session = null; me = null; supporters = [];
+      btn.disabled = false; btn.textContent = 'Delete my account';
+      showLogin();
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'Delete my account';
+      toast('Could not delete. Email ' + HELP_EMAIL + ' for help.');
+    }
+  });
+
+  // ---------- Start ----------
+  sb.auth.onAuthStateChange((event, s) => {
+    if (event === 'SIGNED_OUT') { session = null; }
+    else if (s) session = s;
+  });
+  (async function start() {
+    paintSound();
+    try {
+      const { data } = await sb.auth.getSession();
+      session = data.session;
+    } catch (e) { session = null; }
+    if (session) await afterLogin(); else showLogin();
+  })();
+})();
+</script>
+</body>
+</html>
