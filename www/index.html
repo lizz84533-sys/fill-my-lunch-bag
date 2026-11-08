@@ -72,6 +72,8 @@
   .hello { color: var(--soft); margin: 2px 0 0; font-size: 14px; }
   .bag-card { display: flex; gap: 16px; align-items: center; }
   .bag-svg { width: 116px; flex: none; }
+  .bag-food { opacity: 0; transform-box: fill-box; transform-origin: center bottom; transform: translateY(18px) scale(0.4); transition: opacity 0.5s ease, transform 0.6s cubic-bezier(.2,1.5,.4,1); }
+  .bag-food.in { opacity: 1; transform: translateY(0) scale(1); }
   .bag-info { flex: 1; min-width: 0; }
   .bag-info h2 { font-size: 20px; margin: 4px 0 6px; overflow: hidden; text-overflow: ellipsis; }
   .bag-info .amt { font-size: 15px; color: var(--soft); }
@@ -181,22 +183,22 @@
   <div class="card">
     <div id="goalBox" class="bag-card">
       <svg class="bag-svg" viewBox="0 0 120 150" aria-hidden="true">
-        <defs>
-          <clipPath id="bagClip"><path d="M18 40 L102 40 L108 142 L12 142 Z"/></clipPath>
-          <linearGradient id="foodGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#E8A04B"/><stop offset="1" stop-color="#C46A2B"/>
-          </linearGradient>
-        </defs>
-        <path d="M24 40 L32 14 L88 14 L96 40 Z" fill="#B48A5C"/>
-        <path d="M18 40 L102 40 L108 142 L12 142 Z" fill="#D9BC92"/>
-        <g clip-path="url(#bagClip)">
-          <rect id="bagFill" x="0" y="142" width="120" height="0" fill="url(#foodGrad)" style="transition: y 1.2s ease, height 1.2s ease"/>
-          <path id="bagWave" d="" fill="#F3C47A" opacity="0.7"/>
+        <!-- inside of the open bag -->
+        <path d="M20 58 L100 58 L105 142 L15 142 Z" fill="#A9804F"/>
+        <path d="M20 58 L100 58 L96 66 L24 66 Z" fill="#8E6A40" opacity="0.6"/>
+        <!-- food that pops in as the goal fills -->
+        <g font-size="40" text-anchor="middle" style="font-family: 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;">
+          <text class="bag-food" data-at="1"  x="36" y="84">🥪</text>
+          <text class="bag-food" data-at="35" x="84" y="82">🍌</text>
+          <text class="bag-food" data-at="65" x="60" y="76">🍪</text>
+          <text class="bag-food" data-at="95" x="60" y="52" font-size="44">🧁</text>
         </g>
-        <path d="M18 40 L102 40 L108 142 L12 142 Z" fill="none" stroke="#8B5A2B" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M30 58 L36 128 M90 58 L84 128" stroke="#8B5A2B" stroke-width="1" opacity="0.25"/>
-        <circle cx="96" cy="132" r="13" fill="#B3261E"/>
-        <path d="M96 119 q2 -7 8 -8" stroke="#5E7D3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- front of the bag -->
+        <path d="M15 76 L105 76 L108 142 L12 142 Z" fill="#D9BC92" stroke="#8B5A2B" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M15 76 L21 83 L27 76 L33 83 L39 76 L45 83 L51 76 L57 83 L63 76 L69 83 L75 76 L81 83 L87 76 L93 83 L99 76 L105 76" fill="none" stroke="#8B5A2B" stroke-width="1.2" opacity="0.35"/>
+        <path d="M30 92 L35 132 M90 92 L85 132" stroke="#8B5A2B" stroke-width="1" opacity="0.25"/>
+        <circle cx="98" cy="132" r="13" fill="#B3261E"/>
+        <path d="M98 119 q2 -7 8 -8" stroke="#5E7D3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
       </svg>
       <div class="bag-info">
         <div class="label">Fill the bag</div>
@@ -555,15 +557,9 @@
     $('acctEmail').textContent = 'Logged in as ' + (session && session.user ? session.user.email : '');
   }
 
-  // The bag fills from the bottom with a little wavy top
+  // Food pops into the open bag as the goal fills: sandwich, banana, cookie, then a cupcake at 100%
   function setBagLevel(pct) {
-    const top = 142, bottom = 40; // inside of the bag, from bottom (142) up to the fold (40)
-    const h = (top - bottom) * (pct / 100);
-    const y = top - h;
-    const fill = $('bagFill');
-    fill.setAttribute('y', y); fill.setAttribute('height', h);
-    $('bagWave').setAttribute('d', pct > 0 && pct < 100
-      ? 'M0 ' + y + ' q15 -6 30 0 t30 0 t30 0 t30 0 V' + (y + 6) + ' H0 Z' : '');
+    document.querySelectorAll('.bag-food').forEach(f => f.classList.toggle('in', pct >= Number(f.dataset.at)));
   }
 
   function renderShare() {
