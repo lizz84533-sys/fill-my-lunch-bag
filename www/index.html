@@ -35,6 +35,8 @@
   .screen.no-tabs { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
   .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .head h1 { font-size: 26px; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand img { width: 52px; height: 52px; border-radius: 50%; flex: none; box-shadow: 0 2px 8px rgba(91,60,30,0.18); }
   .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--kraft-dark); font-size: 18px; display: grid; place-items: center; }
   .icon-btn.spin span { display: inline-block; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -172,7 +174,7 @@
 <!-- Lunches -->
 <section class="screen hidden" id="sLunches">
   <div class="head">
-    <div><h1>Your lunch bag</h1><p class="hello" id="hello"></p></div>
+    <div class="brand"><img src="logo.jpg" alt=""><div><h1>Your lunch bag</h1><p class="hello" id="hello"></p></div></div>
     <button class="icon-btn" id="refreshBtn" aria-label="Refresh"><span>↻</span></button>
   </div>
 
@@ -221,7 +223,7 @@
 
 <!-- Share -->
 <section class="screen hidden" id="sShare">
-  <div class="head"><h1>Share your bag</h1></div>
+  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Share your bag</h1></div></div>
   <div class="card qr-card">
     <div class="label">Show somebody this code so they can fill your lunch bag</div>
     <div class="qr-box" id="qrBox"></div>
@@ -241,7 +243,7 @@
 
 <!-- Settings -->
 <section class="screen hidden" id="sSettings">
-  <div class="head"><h1>Settings</h1></div>
+  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Settings</h1></div></div>
   <div class="card">
     <div class="label" style="margin-bottom:4px;">Your page</div>
     <button class="set-item" id="editPageBtn">Edit my page, posts and messages <span class="arrow">↗</span></button>
@@ -273,7 +275,7 @@
 <!-- New lunch pop-up -->
 <div class="pop hidden" id="pop">
   <div class="pop-card">
-    <div class="emo">🍎</div>
+    <img class="emo" src="logo.jpg" alt="" style="width:110px;height:110px;border-radius:50%;display:block;margin:0 auto;box-shadow:0 4px 14px rgba(91,60,30,0.2);">
     <h2 id="popTitle">Someone filled your bag!</h2>
     <p id="popText"></p>
     <button class="btn" id="popClose">Yum, thanks!</button>
