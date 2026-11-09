@@ -191,15 +191,24 @@
   .sw span::before { content: ""; position: absolute; width: 26px; height: 26px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
   .sw input:checked + span { background: var(--leaf); }
   .sw input:checked + span::before { transform: translateX(20px); }
-  .tabs { position: fixed; left: 16px; right: 84px; bottom: calc(env(safe-area-inset-bottom) + 10px); display: flex; background: rgba(255,253,248,0.97); border-radius: 999px; padding: 5px; box-shadow: 0 4px 18px rgba(59,42,30,0.14); z-index: 5; }
-  .tab { border-radius: 999px; padding: 6px 0; }
-  .tab.on { background: #F0E3CC; }
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; background: rgba(255,253,248,0.97); border-top: 1px solid var(--line); padding: 6px 4px calc(env(safe-area-inset-bottom) + 4px); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 5; }
+  .tab { padding: 4px 0; }
   .tab.on .ic { background: none; }
-  .tab .ic { height: 24px; }
+  .tab .ic { height: 26px; }
+  .tab-plus { flex: 1; display: flex; justify-content: center; align-items: flex-start; border: none; background: none; padding: 0; }
+  .tab-plus span { width: 52px; height: 52px; margin-top: -18px; border-radius: 50%; background: var(--kraft-dark); color: #fff; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(91,60,30,0.3); border: 3px solid var(--paper); }
+  .tab-plus svg { width: 24px; height: 24px; }
   .fab { position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 10px); width: 58px; height: 58px; border-radius: 50%; border: none; background: var(--kraft-dark); color: #fff; box-shadow: 0 4px 18px rgba(59,42,30,0.14); display: grid; place-items: center; z-index: 5; }
   .fab svg { width: 26px; height: 26px; }
   .topbar { display: flex; justify-content: space-between; align-items: center; margin: 2px 2px 14px; }
   .topbar .hey { font-weight: 700; font-size: 19px; }
+  .bagtitle { font-family: Georgia, serif; font-weight: 700; font-size: 24px; line-height: 1.15; }
+  .topbar .avatar-btn { width: 46px; height: 46px; }
+  .hero-row { display: flex; gap: 14px; align-items: center; }
+  .hero-row .left { flex: 1; min-width: 0; }
+  .bagsvg { width: 96px; height: 116px; flex: none; }
+  .code-btn { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+  .code-btn svg { width: 22px; height: 22px; }
   .topbar .avatar-btn { width: 40px; height: 40px; border-radius: 50%; border: none; padding: 0; overflow: hidden; background: #EFE2CC; }
   .topbar .avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .period { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 6px 10px; font-size: 14px; color: var(--ink); font-family: inherit; }
@@ -275,16 +284,31 @@
 
 <!-- Lunches -->
 <section class="screen hidden" id="sLunches">
-  <div class="topbar"><div style="display:flex;align-items:center;gap:10px;min-width:0;"><button class="avatar-btn" id="meBtn" aria-label="Your account"><img id="mePic" src="logo.jpg" alt=""></button><div class="hey" id="hello" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div></div><button class="nav-act" id="codeBtn" aria-label="My scan code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button></div>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:12px;min-width:0;"><button class="avatar-btn" id="meBtn" aria-label="Your account"><img id="mePic" src="logo.jpg" alt=""></button><div style="min-width:0;"><div class="bagtitle">Your lunch bag</div><div class="hello" id="hello" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;"></div></div></div></div>
   <button class="hidden" id="refreshBtn" aria-hidden="true"><span></span></button>
   <div class="card hero">
-    <div class="row"><div class="money-big" id="total30">$0</div><select class="period" id="periodSel" aria-label="Time period"><option value="30">30 days</option><option value="all">All time</option></select></div>
-    <div class="sub2" id="count30">0 lunches</div>
+    <div class="hero-row">
+      <div class="left">
+        <select class="period" id="periodSel" aria-label="Time period"><option value="30">Last 30 days</option><option value="all">All time</option></select>
+        <div class="money-big" id="total30" style="margin-top:8px;">$0</div>
+        <div class="sub2" id="count30">0 lunches</div>
+      </div>
+      <svg class="bagsvg" viewBox="0 0 100 120" aria-hidden="true">
+  <defs><clipPath id="bagClip"><path d="M18 30 L82 30 L88 112 Q88 116 84 116 L16 116 Q12 116 12 112 Z"/></clipPath></defs>
+  <path d="M18 30 L82 30 L88 112 Q88 116 84 116 L16 116 Q12 116 12 112 Z" fill="#EFE2CC"/>
+  <rect id="bagFill" x="0" y="116" width="100" height="0" fill="#C9A77C" clip-path="url(#bagClip)"/>
+  <path d="M18 30 L82 30 L88 112 Q88 116 84 116 L16 116 Q12 116 12 112 Z" fill="none" stroke="#8B5A2B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M18 30 L24 12 L76 12 L82 30" fill="#E3D1B2" stroke="#8B5A2B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24 12 L30 22 L36 12 L42 22 L48 12 L54 22 L60 12 L66 22 L72 12" fill="none" stroke="#8B5A2B" stroke-width="2" stroke-linejoin="round"/>
+  <text id="bagPct" x="50" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#3B2A1E"></text>
+</svg>
+    </div>
     <span class="hidden" id="totalAll"></span><span class="hidden" id="countAll"></span>
     <div class="goalbar" id="goalBar">
       <div class="gb-top"><span id="gbText">Lunch goal</span><button class="gb-set" id="gbSet">Set a goal</button></div>
-      <div class="gb-track"><div class="gb-fill" id="gbFill"></div></div>
+      <div class="gb-track hidden"><div class="gb-fill" id="gbFill"></div></div>
     </div>
+    <button class="btn code-btn" id="showCodeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>Show my code</button>
   </div>
 
   <div class="card hidden" id="goalCard">
@@ -384,9 +408,9 @@
 
 <!-- Share -->
 <section class="screen hidden" id="sShare">
-  <div class="navbar"><button class="back-nav" id="shareBack" aria-label="Back">‹</button><div class="t">My scan code</div></div>
+  <div class="navbar"><button class="back-nav hidden" id="shareBack" aria-label="Back">‹</button><div class="t">My code</div></div>
   <div class="card qr-card">
-    <div class="tip" style="margin:0;">Let someone scan this to buy you lunch</div>
+    <div class="tip" style="margin:0;">In person? Let them scan this with their phone camera to buy you lunch</div>
     <div class="qr-box" id="qrBox"></div>
     <div class="qr-name" id="qrName"></div>
     <div class="qr-link" id="qrLink"></div>
@@ -422,9 +446,10 @@
 <nav class="tabs hidden" id="tabs">
   <button class="tab on" data-tab="sLunches"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1.2 12.2a1 1 0 0 1-1 .8H7.7a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></span>Lunches</button>
   <button class="tab" data-tab="sPosts"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>Posts</button>
+  <button class="tab-plus" id="fab" aria-label="Write a post"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></button>
   <button class="tab" data-tab="sMessages"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>Messages<span class="badge hidden" id="msgBadge"></span></button>
+  <button class="tab" data-tab="sShare"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></span>My code</button>
 </nav>
-<button class="fab hidden" id="fab" aria-label="Write a post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <!-- New lunch pop-up -->
 <div class="pop hidden" id="pop">
@@ -536,10 +561,9 @@
   const SCREENS = ['sLoading', 'sLogin', 'sNoPage', 'sLunches', 'sPosts', 'sMessages', 'sShare', 'sSettings', 'sEdit'];
   function show(id) {
     SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id));
-    const tabbed = ['sLunches', 'sPosts', 'sMessages'].indexOf(id) !== -1;
+    const tabbed = ['sLunches', 'sPosts', 'sMessages', 'sShare'].indexOf(id) !== -1;
     if (tabbed) lastTab = id;
     $('tabs').classList.toggle('hidden', !tabbed);
-    $('fab').classList.toggle('hidden', !tabbed);
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
     if (id === 'sShare') renderShare();
     if (id === 'sMessages') { renderMessages(); markMessagesRead(); }
@@ -720,7 +744,7 @@
 
   // ---------- Render ----------
   function renderAll() {
-    $('hello').textContent = 'Hey, ' + (me.name || 'friend');
+    $('hello').textContent = me.name || '';
     $('mePic').src = me.avatar_url || 'logo.jpg';
     $('meBig').src = me.avatar_url || 'logo.jpg';
     $('meName').textContent = me.name || '';
@@ -736,15 +760,15 @@
       const pct = Math.min(100, Math.round((got / goalLunches) * 100));
       $('goalName').textContent = 'Lunch goal';
       $('gbText').textContent = (me.goal_label ? me.goal_label + ': ' : 'Lunch goal: ') + got + ' of ' + plural(goalLunches);
-      $('gbFill').style.width = pct + '%'; $('gbSet').textContent = 'Edit';
-      $('gbFill').parentElement.classList.remove('hidden');
+      $('gbSet').textContent = 'Edit';
+      setBag(pct);
       $('goalPct').textContent = pct + '%';
       $('goalAmt').textContent = got + ' of ' + plural(goalLunches);
       setBagLevel(pct);
     } else {
       $('goalBox').classList.add('hidden'); $('goalNone').classList.remove('hidden');
       $('gbText').textContent = 'Set a goal and watch your bag fill up'; $('gbSet').textContent = 'Set a goal';
-      $('gbFill').parentElement.classList.add('hidden');
+      setBag(null);
     }
 
     // Totals
@@ -779,15 +803,15 @@
     ).join('') : '<p class="empty">No posts yet. Tap + to share an update with your supporters.</p>';
   }
   $('periodSel').addEventListener('change', () => { buzz('light'); renderAll(); });
-  $('codeBtn').addEventListener('click', () => { buzz('light'); codeFrom = lastTab; show('sShare'); });
+  $('showCodeBtn').addEventListener('click', () => { buzz('light'); show('sShare'); });
   $('gbSet').addEventListener('click', () => openEdit());
   $('meBtn').addEventListener('click', () => { buzz('light'); show('sSettings'); });
   $('setBack').addEventListener('click', () => { buzz('light'); show(lastTab); });
   let codeFrom = 'sSettings';
-  $('myCodeBtn').addEventListener('click', () => { buzz('light'); codeFrom = 'sSettings'; show('sShare'); });
+  $('myCodeBtn').addEventListener('click', () => { buzz('light'); show('sShare'); });
   $('shareBack').addEventListener('click', () => { buzz('light'); show(codeFrom); });
   $('fab').addEventListener('click', () => { buzz('light'); show('sPosts'); openPostSheet(true); });
-  function openPostSheet(on) { $('postSheet').classList.toggle('hidden', !on); $('tabs').classList.toggle('hidden', on); $('fab').classList.toggle('hidden', on); if (on) setTimeout(() => $('postTitle').focus(), 250); }
+  function openPostSheet(on) { $('postSheet').classList.toggle('hidden', !on); $('tabs').classList.toggle('hidden', on); if (on) setTimeout(() => $('postTitle').focus(), 250); }
   $('newPostBtn').addEventListener('click', () => { buzz('light'); openPostSheet(true); });
   $('postCancel').addEventListener('click', () => openPostSheet(false));
   $('postSheet').addEventListener('click', e => { if (e.target.id === 'postSheet') openPostSheet(false); });
@@ -943,6 +967,11 @@
   $('bankBtn').addEventListener('click', () => openWeb(SITE + '/'));
 
   function setBagLevel(pct) {}
+  function setBag(pct) {
+    const h = pct == null ? 0 : Math.round(86 * pct / 100);
+    $('bagFill').setAttribute('y', String(116 - h)); $('bagFill').setAttribute('height', String(h));
+    $('bagPct').textContent = pct == null ? '' : pct + '%';
+  }
 
   function renderShare() {
     if (!me) return;
