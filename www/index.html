@@ -131,6 +131,37 @@
   .pop-card p { color: var(--soft); margin: 0 0 18px; line-height: 1.5; }
   @keyframes popin { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @keyframes bounce { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-14px) rotate(-8deg); } 70% { transform: translateY(0) rotate(4deg); } }
+  /* ---------- Posts, messages, edit page ---------- */
+  textarea.field { min-height: 90px; resize: vertical; font-family: inherit; line-height: 1.45; }
+  .flabel { display: block; font-size: 13px; font-weight: 600; color: var(--soft); margin: 10px 2px 6px; }
+  .flabel:first-child { margin-top: 0; }
+  .post { padding: 14px 0; border-top: 1px solid var(--line); position: relative; }
+  .post:first-child { border-top: none; padding-top: 2px; }
+  .post .ptitle { font-family: Georgia, serif; font-weight: 700; font-size: 17px; padding-right: 40px; }
+  .post .pbody { font-size: 15px; margin-top: 4px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; -webkit-user-select: text; user-select: text; }
+  .post .pwhen { font-size: 12px; color: var(--soft); margin-top: 6px; }
+  .post .pdel { position: absolute; top: 8px; right: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); font-size: 15px; }
+  .post:first-child .pdel { top: 0; }
+  .chips { display: flex; gap: 8px; margin-bottom: 12px; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--soft); border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 600; }
+  .chip.on { background: var(--kraft-dark); border-color: var(--kraft-dark); color: #fff; }
+  .who.unread .name::after { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--apple); margin-left: 6px; vertical-align: middle; }
+  .tab { position: relative; }
+  .badge { position: absolute; top: 0; left: 50%; margin-left: 8px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--apple); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+  .back-btn { background: none; border: none; color: var(--kraft-dark); font-weight: 600; font-size: 16px; padding: 6px 0; margin-bottom: 6px; }
+  .photo-row { display: flex; align-items: center; gap: 16px; }
+  .photo-row img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 2px 8px rgba(91,60,30,0.18); }
+  .photo-row .btns { flex: 1; }
+  .photo-row .btn { padding: 11px; font-size: 15px; }
+  .sw-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 2px 4px; }
+  .sw-row .t { font-weight: 600; font-size: 15px; }
+  .sw-row .d { font-size: 13px; color: var(--soft); margin-top: 2px; }
+  .sw { position: relative; width: 52px; height: 32px; flex: none; }
+  .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .sw span { position: absolute; inset: 0; background: #DDD0BA; border-radius: 999px; transition: 0.2s; }
+  .sw span::before { content: ""; position: absolute; width: 26px; height: 26px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .sw input:checked + span { background: var(--leaf); }
+  .sw input:checked + span::before { transform: translateX(20px); }
   .loading { min-height: 100%; display: grid; place-items: center; text-align: center; color: var(--soft); }
   .loading img { width: 140px; height: 140px; border-radius: 50%; display: block; margin: 0 auto 12px; }
 </style>
@@ -208,6 +239,75 @@
   <div class="card" id="whoList"></div>
 </section>
 
+<!-- Posts -->
+<section class="screen hidden" id="sPosts">
+  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Posts</h1></div></div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px;">Write a post</div>
+    <input class="field" id="postTitle" maxlength="120" placeholder="Title">
+    <textarea class="field" id="postBody" maxlength="2000" placeholder="Share an update with your supporters"></textarea>
+    <button class="btn" id="postBtn">Post it</button>
+  </div>
+  <div class="list-head"><h3>Your posts</h3></div>
+  <div class="card" id="postList"></div>
+</section>
+
+<!-- Messages -->
+<section class="screen hidden" id="sMessages">
+  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Messages</h1></div></div>
+  <input class="field" id="msgSearch" type="search" placeholder="Search messages">
+  <div class="chips">
+    <button class="chip on" data-filter="all">All</button>
+    <button class="chip" data-filter="unread">Unread</button>
+  </div>
+  <div class="card" id="msgList"></div>
+  <p class="tiny" style="margin-top:6px;">Notes supporters leave when they buy you lunch show up here. Only you can see them.</p>
+</section>
+
+<!-- Edit my page -->
+<section class="screen no-tabs hidden" id="sEdit">
+  <button class="back-btn" id="editBack">‹ Back</button>
+  <div class="head"><h1>Edit my page</h1></div>
+  <div class="card">
+    <div class="label" style="margin-bottom:10px;">Profile photo</div>
+    <div class="photo-row">
+      <img id="editAvatar" src="logo.jpg" alt="Your profile photo">
+      <div class="btns">
+        <button class="btn ghost" id="photoBtn">Change photo</button>
+        <button class="link-btn" id="photoRemove">Remove photo</button>
+      </div>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" class="hidden">
+  </div>
+  <div class="card">
+    <label class="flabel" for="editName">Page name</label>
+    <input class="field" id="editName" maxlength="60">
+    <label class="flabel" for="editTagline">Tagline</label>
+    <textarea class="field" id="editTagline" maxlength="200" style="min-height:64px;"></textarea>
+    <label class="flabel" for="editBio">About you (shown on your page)</label>
+    <textarea class="field" id="editBio" maxlength="600" placeholder="Tell supporters about you and your work"></textarea>
+    <label class="flabel" for="editPrice">Price per lunch ($)</label>
+    <input class="field" id="editPrice" inputmode="decimal" placeholder="3.70">
+    <label class="flabel" for="editGoalLabel">Goal name (optional)</label>
+    <input class="field" id="editGoalLabel" maxlength="80" placeholder="New camera for my videos">
+    <label class="flabel" for="editGoalAmount">Goal amount in dollars (0 = no goal)</label>
+    <input class="field" id="editGoalAmount" inputmode="numeric" placeholder="0">
+    <label class="flabel" for="editThanks">Thank you message (shown after someone buys lunch)</label>
+    <textarea class="field" id="editThanks" maxlength="500" placeholder="Thank you so much for the lunch!"></textarea>
+    <div class="sw-row">
+      <div><div class="t">Accept weekly lunches</div><div class="d">Let supporters treat you every week.</div></div>
+      <label class="sw"><input type="checkbox" id="editWeekly"><span></span></label>
+    </div>
+    <div class="msg" id="editMsg"></div>
+    <button class="btn" id="saveEditBtn">Save changes</button>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:4px;">Payouts</div>
+    <p class="tip" id="payoutText" style="margin:6px 0 10px;"></p>
+    <button class="set-item" id="bankBtn" style="border-top:none;padding-top:4px;">Bank and payouts <span class="arrow">↗</span></button>
+  </div>
+</section>
+
 <!-- Share -->
 <section class="screen hidden" id="sShare">
   <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Share your bag</h1></div></div>
@@ -233,7 +333,7 @@
   <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Settings</h1></div></div>
   <div class="card">
     <div class="label" style="margin-bottom:4px;">Your page</div>
-    <button class="set-item" id="editPageBtn">Edit my page, posts and messages <span class="arrow">↗</span></button>
+    <button class="set-item" id="editPageBtn">Edit my page <span class="arrow">›</span></button>
     <button class="set-item" id="viewPageBtn">See my page like supporters do <span class="arrow">↗</span></button>
   </div>
   <div class="card">
@@ -255,6 +355,8 @@
 <!-- Tab bar -->
 <nav class="tabs hidden" id="tabs">
   <button class="tab on" data-tab="sLunches"><span class="ic"><img src="logo.jpg" alt="" style="width:26px;height:26px;border-radius:50%;display:block;"></span>Lunches</button>
+  <button class="tab" data-tab="sPosts"><span class="ic">📝</span>Posts</button>
+  <button class="tab" data-tab="sMessages"><span class="ic">💌</span>Messages<span class="badge hidden" id="msgBadge"></span></button>
   <button class="tab" data-tab="sShare"><span class="ic">📲</span>Share</button>
   <button class="tab" data-tab="sSettings"><span class="ic">⚙️</span>Settings</button>
 </nav>
@@ -290,7 +392,10 @@
   let session = null;
   let me = null;
   let supporters = [];
+  let posts = [];
+  let msgFilter = 'all';
   let pollTimer = null;
+  const DEFAULT_TAGLINE = 'Treat someone you care about to lunch today.';
 
   // ---------- Small helpers ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -362,13 +467,15 @@
   }
 
   // ---------- Screens ----------
-  const SCREENS = ['sLoading', 'sLogin', 'sNoPage', 'sLunches', 'sShare', 'sSettings'];
+  const SCREENS = ['sLoading', 'sLogin', 'sNoPage', 'sLunches', 'sPosts', 'sMessages', 'sShare', 'sSettings', 'sEdit'];
   function show(id) {
     SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id));
-    const tabbed = ['sLunches', 'sShare', 'sSettings'].indexOf(id) !== -1;
+    const tabbed = ['sLunches', 'sPosts', 'sMessages', 'sShare', 'sSettings'].indexOf(id) !== -1;
     $('tabs').classList.toggle('hidden', !tabbed);
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
     if (id === 'sShare') renderShare();
+    if (id === 'sMessages') { renderMessages(); markMessagesRead(); }
+    $(id).scrollTop = 0;
   }
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { buzz('light'); show(t.dataset.tab); }));
 
@@ -489,11 +596,16 @@
     if (error) throw error;
     supporters = data || [];
   }
+  async function loadPosts() {
+    const { data, error } = await sb.from('lunch_posts').select('*').eq('creator_id', me.id).order('created_at', { ascending: false });
+    if (error) throw error;
+    posts = data || [];
+  }
   async function afterLogin() {
     try {
       await loadMe();
       if (!me) { $('noPageEmail').textContent = (session && session.user && session.user.email) || 'this account'; show('sNoPage'); return; }
-      await loadSupporters();
+      await Promise.all([loadSupporters(), loadPosts()]);
       renderAll();
       checkForNewLunches(true);
       show('sLunches');
@@ -544,7 +656,147 @@
     }).join('') : '<p class="empty">No lunches yet. Share your bag from the Share tab and your first lunch will show up here. 🍎</p>';
 
     $('acctEmail').textContent = 'Logged in as ' + (session && session.user ? session.user.email : '');
+    renderPosts();
+    renderMessages();
   }
+
+  // ---------- Posts ----------
+  function renderPosts() {
+    $('postList').innerHTML = posts.length ? posts.map(p =>
+      '<div class="post"><button class="pdel" data-id="' + esc(p.id) + '" aria-label="Delete post">🗑</button>' +
+      '<div class="ptitle">' + esc(p.title) + '</div><div class="pbody">' + esc(p.body) + '</div>' +
+      '<div class="pwhen">' + timeAgo(p.created_at) + '</div></div>'
+    ).join('') : '<p class="empty">No posts yet. Share an update and your supporters will see it on your page. 🍎</p>';
+  }
+  $('postBtn').addEventListener('click', async () => {
+    const title = $('postTitle').value.trim(), body = $('postBody').value.trim();
+    if (!title || !body) { toast('Add a title and a message first'); return; }
+    const btn = $('postBtn'); btn.disabled = true; btn.textContent = 'Posting...';
+    try {
+      const { data, error } = await sb.from('lunch_posts').insert({ creator_id: me.id, title, body }).select().single();
+      if (error) throw error;
+      posts.unshift(data); renderPosts();
+      $('postTitle').value = ''; $('postBody').value = '';
+      buzz('success'); toast('Post published');
+    } catch (e) { toast('Could not post. Try again.'); }
+    btn.disabled = false; btn.textContent = 'Post it';
+  });
+  $('postList').addEventListener('click', async e => {
+    const b = e.target.closest('.pdel'); if (!b) return;
+    if (!confirm("Delete this post? This can't be undone.")) return;
+    const id = b.dataset.id;
+    try {
+      const { data, error } = await sb.from('lunch_posts').delete().eq('id', id).eq('creator_id', me.id).select();
+      if (error || !data || !data.length) throw error || new Error('none');
+      posts = posts.filter(p => String(p.id) !== String(id)); renderPosts();
+      buzz('light'); toast('Post deleted');
+    } catch (err) { toast('Could not delete. Try again.'); }
+  });
+
+  // ---------- Messages (notes supporters leave with a lunch) ----------
+  function msgKey() { return 'fmlb_msgread_' + me.id; }
+  function withMessages() { return supporters.filter(s => s.message && String(s.message).trim()); }
+  function isUnread(s) { const r = store(msgKey()); return r ? new Date(s.created_at) > new Date(r) : false; }
+  function renderMessages() {
+    if (!me) return;
+    const all = withMessages();
+    if (all.length && !store(msgKey())) store(msgKey(), all[0].created_at);
+    const unread = all.filter(isUnread).length;
+    $('msgBadge').textContent = unread > 9 ? '9+' : unread;
+    $('msgBadge').classList.toggle('hidden', !unread);
+    const q = $('msgSearch').value.trim().toLowerCase();
+    let list = msgFilter === 'unread' ? all.filter(isUnread) : all;
+    if (q) list = list.filter(s => (String(s.name || '') + ' ' + s.message).toLowerCase().indexOf(q) !== -1);
+    $('msgList').innerHTML = list.length ? list.map(s =>
+      '<div class="who' + (isUnread(s) ? ' unread' : '') + '"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
+      '<div class="name">' + esc(s.name || 'Anonymous') + '</div>' +
+      '<div class="note">' + esc(s.message) + '</div>' +
+      '<div class="when">' + timeAgo(s.created_at) + ' · ' + plural(Number(s.qty) || 1) + '</div></div>' +
+      '<div class="money">+$' + money(s.amount) + '</div></div>'
+    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : 'No messages yet. When someone buys you lunch and leaves a note, it shows up here. 💌') + '</p>';
+  }
+  function markMessagesRead() {
+    const all = withMessages();
+    if (!all.length) return;
+    setTimeout(() => { store(msgKey(), all[0].created_at); $('msgBadge').classList.add('hidden'); }, 1500);
+  }
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    msgFilter = c.dataset.filter;
+    document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c));
+    buzz('light'); renderMessages();
+  }));
+  $('msgSearch').addEventListener('input', renderMessages);
+
+  // ---------- Edit my page ----------
+  function fillEdit() {
+    $('editAvatar').src = me.avatar_url || 'logo.jpg';
+    $('editName').value = me.name || '';
+    $('editTagline').value = me.tagline || '';
+    $('editBio').value = me.bio || '';
+    $('editPrice').value = me.price ? money(me.price) : '';
+    $('editGoalLabel').value = me.goal_label || '';
+    $('editGoalAmount').value = me.goal_amount || '';
+    $('editThanks').value = me.thank_you || '';
+    $('editWeekly').checked = me.accept_weekly !== false;
+    $('editMsg').textContent = '';
+    $('payoutText').textContent = me.stripe_charges_enabled ? '✅ Your bank is connected. Lunch money goes to it.' : 'Connect a bank so you can get paid. This opens on the website because Stripe handles it.';
+  }
+  function openEdit() { if (!me) return; fillEdit(); buzz('light'); show('sEdit'); }
+  $('editBack').addEventListener('click', () => { buzz('light'); show('sSettings'); });
+  $('saveEditBtn').addEventListener('click', async () => {
+    const m = $('editMsg'); m.textContent = '';
+    const name = $('editName').value.trim() || me.name;
+    const tagline = $('editTagline').value.trim() || DEFAULT_TAGLINE;
+    const bio = $('editBio').value.trim();
+    const price = Math.round(parseFloat(String($('editPrice').value).replace(/[$,\s]/g, '')) * 100) / 100;
+    if (!(price >= 1 && price <= 500)) { m.textContent = 'Price must be between $1 and $500.'; return; }
+    const goal_label = $('editGoalLabel').value.trim();
+    const g = parseInt($('editGoalAmount').value, 10);
+    const goal_amount = g > 0 ? g : 0;
+    const btn = $('saveEditBtn'); btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      const { data, error } = await sb.from('lunch_profiles').update({ name, tagline, bio, price, goal_label, goal_amount, thank_you: $('editThanks').value.trim(), accept_weekly: $('editWeekly').checked }).eq('id', me.id).select().single();
+      if (error) throw error;
+      me = data; renderAll(); fillEdit();
+      buzz('success'); toast('Page updated');
+    } catch (e) { m.textContent = 'Could not save. Check your internet and try again.'; }
+    btn.disabled = false; btn.textContent = 'Save changes';
+  });
+  async function resizeToBlob(file) {
+    const img = await new Promise((res, rej) => {
+      const i = new Image(); const u = URL.createObjectURL(file);
+      i.onload = () => { URL.revokeObjectURL(u); res(i); }; i.onerror = rej; i.src = u;
+    });
+    const size = 400, c = document.createElement('canvas'); c.width = size; c.height = size;
+    const sq = Math.min(img.width, img.height);
+    c.getContext('2d').drawImage(img, (img.width - sq) / 2, (img.height - sq) / 2, sq, sq, 0, 0, size, size);
+    return await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+  }
+  $('photoBtn').addEventListener('click', () => $('photoInput').click());
+  $('photoInput').addEventListener('change', async e => {
+    const file = e.target.files[0]; e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast('Pick a picture'); return; }
+    toast('Uploading...');
+    try {
+      const blob = await resizeToBlob(file);
+      const path = me.id + '/avatar-' + Date.now() + '.jpg';
+      const up = await sb.storage.from('lunch-avatars').upload(path, blob, { contentType: 'image/jpeg' });
+      if (up.error) throw up.error;
+      const url = sb.storage.from('lunch-avatars').getPublicUrl(path).data.publicUrl;
+      const { data, error } = await sb.from('lunch_profiles').update({ avatar_url: url }).eq('id', me.id).select().single();
+      if (error) throw error;
+      me = data; fillEdit(); buzz('success'); toast('Photo updated');
+    } catch (err) { toast('Could not upload photo'); }
+  });
+  $('photoRemove').addEventListener('click', async () => {
+    try {
+      const { data, error } = await sb.from('lunch_profiles').update({ avatar_url: '' }).eq('id', me.id).select().single();
+      if (error) throw error;
+      me = data; fillEdit(); toast('Photo removed');
+    } catch (e) { toast('Could not remove photo'); }
+  });
+  $('bankBtn').addEventListener('click', () => openWeb(SITE + '/'));
 
   function setBagLevel(pct) {}
 
@@ -597,7 +849,7 @@
     try {
       await loadMe();
       if (!me) { show('sNoPage'); return; }
-      await loadSupporters();
+      await Promise.all([loadSupporters(), loadPosts()]);
       renderAll();
       checkForNewLunches(false);
       if (manual) buzz('light');
@@ -617,8 +869,8 @@
   // ---------- Settings ----------
   function paintSound() { $('soundState').textContent = soundOn() ? 'On' : 'Off'; }
   $('soundBtn').addEventListener('click', () => { store('fmlb_sound', soundOn() ? 'off' : 'on'); paintSound(); if (soundOn()) crunch(); buzz('light'); });
-  $('editPageBtn').addEventListener('click', () => openWeb(SITE + '/'));
-  $('setGoalBtn').addEventListener('click', () => openWeb(SITE + '/'));
+  $('editPageBtn').addEventListener('click', openEdit);
+  $('setGoalBtn').addEventListener('click', openEdit);
   $('viewPageBtn').addEventListener('click', () => openWeb(linkFor(me.handle)));
   $('termsBtn').addEventListener('click', () => openWeb(SITE + '/terms.html'));
   $('helpBtn').addEventListener('click', () => openWeb('mailto:' + HELP_EMAIL + '?subject=' + encodeURIComponent('Fill My Lunch Bag app help')));
@@ -626,7 +878,7 @@
   async function logout() {
     stopPolling();
     try { await sb.auth.signOut(); } catch (e) {}
-    session = null; me = null; supporters = [];
+    session = null; me = null; supporters = []; posts = [];
     showLogin();
   }
   $('logoutBtn').addEventListener('click', logout);
