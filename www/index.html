@@ -35,6 +35,13 @@
   .screen.no-tabs { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
   .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .head h1 { font-size: 26px; }
+  .navbar { position: sticky; top: calc(-1 * (env(safe-area-inset-top) + 18px)); margin: calc(-1 * (env(safe-area-inset-top) + 18px)) -18px 14px; padding: calc(env(safe-area-inset-top) + 12px) 18px 10px; background: rgba(250,243,230,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); z-index: 4; }
+  .navbar .t { text-align: center; font-weight: 700; font-size: 17px; color: var(--ink); }
+  .bigtitle { font-family: Georgia, serif; font-weight: 700; font-size: 30px; margin: 4px 2px 14px; }
+  .sect { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--soft); font-weight: 600; margin: 18px 4px 6px; }
+  .group { background: var(--card); border-radius: 14px; overflow: hidden; margin-bottom: 6px; border: 1px solid var(--line); }
+  .group .set-item { padding: 14px 16px; border-top: 1px solid var(--line); }
+  .group .set-item:first-child { border-top: none; }
   .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .brand img { width: 52px; height: 52px; border-radius: 50%; flex: none; box-shadow: 0 2px 8px rgba(91,60,30,0.18); }
   .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--kraft-dark); font-size: 18px; display: grid; place-items: center; }
@@ -116,10 +123,11 @@
   /* ---------- Tab bar ---------- */
   .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: rgba(255,253,248,0.96); border-top: 1px solid var(--line);
     padding: 6px 8px calc(env(safe-area-inset-bottom) + 6px); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 5; }
-  .tab { flex: 1; border: none; background: none; color: var(--soft); padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; }
-  .tab .ic { font-size: 22px; filter: grayscale(1); opacity: 0.65; }
+  .tab { flex: 1; border: none; background: none; color: #9A8670; padding: 4px 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 600; }
+  .tab .ic { width: 46px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background 0.2s; }
+  .tab .ic svg { width: 23px; height: 23px; }
   .tab.on { color: var(--kraft-dark); }
-  .tab.on .ic { filter: none; opacity: 1; }
+  .tab.on .ic { background: #F0E3CC; }
 
   /* ---------- Toast + new lunch pop ---------- */
   .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 90px); transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: all 0.25s; z-index: 20; max-width: 88%; text-align: center; pointer-events: none; }
@@ -147,7 +155,7 @@
   .chip.on { background: var(--kraft-dark); border-color: var(--kraft-dark); color: #fff; }
   .who.unread .name::after { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--apple); margin-left: 6px; vertical-align: middle; }
   .tab { position: relative; }
-  .badge { position: absolute; top: 0; left: 50%; margin-left: 8px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--apple); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+  .badge { position: absolute; top: 0; left: 50%; margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--apple); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
   .back-btn { background: none; border: none; color: var(--kraft-dark); font-weight: 600; font-size: 16px; padding: 6px 0; margin-bottom: 6px; }
   .photo-row { display: flex; align-items: center; gap: 16px; }
   .photo-row img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 2px 8px rgba(91,60,30,0.18); }
@@ -241,7 +249,7 @@
 
 <!-- Posts -->
 <section class="screen hidden" id="sPosts">
-  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Posts</h1></div></div>
+  <div class="navbar"><div class="t">Posts</div></div>
   <div class="card">
     <div class="label" style="margin-bottom:10px;">Write a post</div>
     <input class="field" id="postTitle" maxlength="120" placeholder="Title">
@@ -254,7 +262,7 @@
 
 <!-- Messages -->
 <section class="screen hidden" id="sMessages">
-  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Messages</h1></div></div>
+  <div class="navbar"><div class="t">Messages</div></div>
   <input class="field" id="msgSearch" type="search" placeholder="Search messages">
   <div class="chips">
     <button class="chip on" data-filter="all">All</button>
@@ -310,7 +318,7 @@
 
 <!-- Share -->
 <section class="screen hidden" id="sShare">
-  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Share your bag</h1></div></div>
+  <div class="navbar"><div class="t">Share</div></div>
   <div class="card qr-card">
     <div class="label">Show somebody this code so they can fill your lunch bag</div>
     <div class="qr-box" id="qrBox"></div>
@@ -330,20 +338,20 @@
 
 <!-- Settings -->
 <section class="screen hidden" id="sSettings">
-  <div class="head"><div class="brand"><img src="logo.jpg" alt=""><h1>Settings</h1></div></div>
-  <div class="card">
-    <div class="label" style="margin-bottom:4px;">Your page</div>
+  <div class="navbar"><div class="t">Settings</div></div>
+  <div class="sect" style="margin-top:4px;">Your page</div>
+  <div class="group">
     <button class="set-item" id="editPageBtn">Edit my page <span class="arrow">›</span></button>
     <button class="set-item" id="viewPageBtn">See my page like supporters do <span class="arrow">↗</span></button>
   </div>
-  <div class="card">
-    <div class="label" style="margin-bottom:4px;">App</div>
+  <div class="sect">App</div>
+  <div class="group">
     <button class="set-item" id="soundBtn">Crunch sound for new lunches <span class="arrow" id="soundState">On</span></button>
     <button class="set-item" id="termsBtn">Terms and privacy <span class="arrow">↗</span></button>
     <button class="set-item" id="helpBtn">Get help <span class="arrow">↗</span></button>
   </div>
+  <div class="sect">Account</div>
   <div class="card">
-    <div class="label" style="margin-bottom:8px;">Account</div>
     <p class="tip" id="acctEmail" style="margin:0 0 12px;"></p>
     <button class="btn ghost" id="logoutBtn">Log out</button>
     <div style="height:10px"></div>
@@ -354,11 +362,11 @@
 
 <!-- Tab bar -->
 <nav class="tabs hidden" id="tabs">
-  <button class="tab on" data-tab="sLunches"><span class="ic"><img src="logo.jpg" alt="" style="width:26px;height:26px;border-radius:50%;display:block;"></span>Lunches</button>
-  <button class="tab" data-tab="sPosts"><span class="ic">📝</span>Posts</button>
-  <button class="tab" data-tab="sMessages"><span class="ic">💌</span>Messages<span class="badge hidden" id="msgBadge"></span></button>
-  <button class="tab" data-tab="sShare"><span class="ic">📲</span>Share</button>
-  <button class="tab" data-tab="sSettings"><span class="ic">⚙️</span>Settings</button>
+  <button class="tab on" data-tab="sLunches"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1.2 12.2a1 1 0 0 1-1 .8H7.7a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></span>Lunches</button>
+  <button class="tab" data-tab="sPosts"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>Posts</button>
+  <button class="tab" data-tab="sMessages"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>Messages<span class="badge hidden" id="msgBadge"></span></button>
+  <button class="tab" data-tab="sShare"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></span>Share</button>
+  <button class="tab" data-tab="sSettings"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>Settings</button>
 </nav>
 
 <!-- New lunch pop-up -->
