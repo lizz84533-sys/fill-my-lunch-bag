@@ -168,6 +168,9 @@
   .post .pwhen { font-size: 12px; color: var(--soft); margin-top: 6px; }
   .post .pdel { position: absolute; top: 8px; right: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); font-size: 15px; }
   .post:first-child .pdel { top: 0; }
+  .msg-acts { display: flex; gap: 14px; margin-top: 6px; }
+  .msg-acts button { border: none; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--soft); }
+  .msg-acts .rep { color: var(--apple); }
   .chips { display: flex; gap: 8px; margin-bottom: 12px; }
   .chip { border: 1px solid var(--line); background: var(--card); color: var(--soft); border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 600; }
   .chip.on { background: var(--kraft-dark); border-color: var(--kraft-dark); color: #fff; }
@@ -193,17 +196,31 @@
   .tab.on { background: #F0E3CC; }
   .tab.on .ic { background: none; }
   .tab .ic { height: 24px; }
-  .fab { position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 10px); width: 58px; height: 58px; border-radius: 50%; border: none; background: rgba(255,253,248,0.97); color: var(--kraft-dark); box-shadow: 0 4px 18px rgba(59,42,30,0.14); display: grid; place-items: center; z-index: 5; }
+  .fab { position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 10px); width: 58px; height: 58px; border-radius: 50%; border: none; background: var(--kraft-dark); color: #fff; box-shadow: 0 4px 18px rgba(59,42,30,0.14); display: grid; place-items: center; z-index: 5; }
   .fab svg { width: 26px; height: 26px; }
   .topbar { display: flex; justify-content: space-between; align-items: center; margin: 2px 2px 14px; }
   .topbar .hey { font-weight: 700; font-size: 19px; }
   .topbar .avatar-btn { width: 40px; height: 40px; border-radius: 50%; border: none; padding: 0; overflow: hidden; background: #EFE2CC; }
   .topbar .avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .period { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 6px 10px; font-size: 14px; color: var(--ink); font-family: inherit; }
+  .goalbar { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; }
+  .gb-top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--soft); }
+  .gb-set { border: none; background: none; color: var(--kraft-dark); font-weight: 700; font-size: 14px; padding: 0; }
+  .gb-track { height: 10px; border-radius: 999px; background: #EFE2CC; margin-top: 8px; overflow: hidden; }
+  .gb-fill { height: 100%; width: 0; background: var(--kraft-dark); border-radius: 999px; transition: width 0.5s; }
   .me-card { text-align: center; padding: 22px 16px; }
   .me-card img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 8px; }
   .me-card .nm { font-weight: 700; font-size: 18px; margin-bottom: 14px; }
   .back-nav { grid-column: 1; background: none; border: none; color: var(--kraft-dark); font-size: 26px; padding: 0; text-align: left; }
+  .seg { display: flex; background: #EFE2CC; border-radius: 999px; padding: 4px; margin: 0 0 14px; }
+  .seg button { flex: 1; border: none; background: none; padding: 10px; border-radius: 999px; font-weight: 700; font-size: 15px; color: var(--soft); }
+  .seg button.on { background: var(--kraft-dark); color: #fff; }
+  .handle-row { display: flex; align-items: center; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 0 14px; margin-bottom: 6px; }
+  .handle-row span { color: var(--soft); font-size: 14px; white-space: nowrap; }
+  .handle-row input { border: none; background: none; flex: 1; min-width: 0; padding: 14px 0 14px 2px; font-size: 16px; color: var(--ink); outline: none; -webkit-user-select: text; user-select: text; }
+  .hcheck { font-size: 13px; min-height: 18px; margin: 0 4px 14px; color: var(--soft); }
+  .hcheck.ok { color: var(--leaf); } .hcheck.bad { color: var(--apple); }
+  .ok-msg { color: var(--leaf); }
   .loading { min-height: 100%; display: grid; place-items: center; text-align: center; color: var(--soft); }
   .loading img { width: 140px; height: 140px; border-radius: 50%; display: block; margin: 0 auto 12px; }
 </style>
@@ -220,17 +237,21 @@
   <div class="login-wrap">
     <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
     <h1 class="hand">Fill My Lunch Bag</h1>
-    <p class="sub">Sign up free so anyone who appreciates your work can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? No account needed.</p>
+    <p class="sub" id="loginSub">Sign up free so anyone who appreciates your work can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? No account needed.</p>
+    <div class="seg" id="authSeg"><button type="button" class="on" data-mode="login">Log in</button><button type="button" data-mode="signup">Sign up</button></div>
+    <h2 id="forgotTitle" class="hidden" style="text-align:center;font-size:22px;margin:0 0 6px;">Reset your password</h2>
+    <p id="forgotSub" class="sub hidden" style="margin-top:0;">Type your email and we'll send you a link to make a new password.</p>
+    <div id="oauthBox">
     <button class="oauth-btn oauth-apple" id="appleBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true" fill="#fff"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-2.99-.79-1.54.02-2.96.9-3.75 2.27-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.24-.02 2.02-1.12 2.77-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.41-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg>Continue with Apple</button>
     <button class="oauth-btn oauth-google" id="googleBtn" type="button"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.8c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.8c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.2-13.5-10l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
     <div class="or-line">or use your email</div>
+    </div>
     <input class="field" id="email" type="email" autocomplete="email" autocapitalize="off" placeholder="Email">
     <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password">
     <div id="tsLogin"></div>
     <button class="btn" id="loginBtn">Log in</button>
     <div class="msg" id="loginMsg"></div>
     <button class="link-btn" id="forgotBtn">Forgot password?</button>
-    <button class="link-btn" id="newBtn">New here? Make your page</button>
   </div>
 </section>
 
@@ -238,22 +259,32 @@
 <section class="screen no-tabs hidden" id="sNoPage">
   <div class="login-wrap">
     <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
-    <h1 class="hand">Almost there</h1>
-    <p class="sub">You're logged in as <b id="noPageEmail"></b>, but this login doesn't have a lunch page yet.<br><br>Already have a page? Tap <b>Log out</b> and sign in the same way you do on the website.</p>
+    <h1 class="hand">Make your page</h1>
+    <p class="sub">Pick a name and your link. You're logged in as <b id="noPageEmail"></b>.</p>
+    <label class="flabel" for="setupName">Page name</label>
+    <input class="field" id="setupName" maxlength="60" placeholder="Jay's Streams">
+    <label class="flabel" for="setupHandle">Your link</label>
+    <div class="handle-row"><span>buylunch.netlify.app/?u=</span><input id="setupHandle" maxlength="24" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="jay"></div>
+    <div class="hcheck" id="hcheck">Letters, numbers and _ only, 3 to 24 characters. You can't change it later.</div>
     <button class="btn" id="makePageBtn">Make my page</button>
-    <button class="link-btn" id="noPageRefresh">I made it, check again</button>
-    <button class="link-btn" id="noPageOut">Log out</button>
+    <div class="msg" id="setupMsg"></div>
+    <p class="tip" style="text-align:center;margin:10px 0 0;">Next, tap your photo at the top, then Edit my page to add a photo, bio and price.</p>
+    <button class="link-btn" id="noPageOut">Already have a page? Log out and sign in the way you did before</button>
   </div>
 </section>
 
 <!-- Lunches -->
 <section class="screen hidden" id="sLunches">
-  <div class="topbar"><div class="hey" id="hello"></div><button class="avatar-btn" id="meBtn" aria-label="Your account"><img id="mePic" src="logo.jpg" alt=""></button></div>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px;min-width:0;"><button class="avatar-btn" id="meBtn" aria-label="Your account"><img id="mePic" src="logo.jpg" alt=""></button><div class="hey" id="hello" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div></div><button class="nav-act" id="codeBtn" aria-label="My scan code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button></div>
   <button class="hidden" id="refreshBtn" aria-hidden="true"><span></span></button>
   <div class="card hero">
     <div class="row"><div class="money-big" id="total30">$0</div><select class="period" id="periodSel" aria-label="Time period"><option value="30">30 days</option><option value="all">All time</option></select></div>
     <div class="sub2" id="count30">0 lunches</div>
     <span class="hidden" id="totalAll"></span><span class="hidden" id="countAll"></span>
+    <div class="goalbar" id="goalBar">
+      <div class="gb-top"><span id="gbText">Lunch goal</span><button class="gb-set" id="gbSet">Set a goal</button></div>
+      <div class="gb-track"><div class="gb-fill" id="gbFill"></div></div>
+    </div>
   </div>
 
   <div class="card hidden" id="goalCard">
@@ -301,6 +332,7 @@
   <div class="chips">
     <button class="chip on" data-filter="all">All</button>
     <button class="chip" data-filter="unread">Unread</button>
+    <button class="chip" data-filter="hidden">Hidden</button>
   </div>
   <div class="card" id="msgList"></div>
   <p class="tiny" style="margin-top:6px;">Notes supporters leave when they buy you lunch show up here. Only you can see them.</p>
@@ -326,7 +358,7 @@
     <input class="field" id="editName" maxlength="60">
     <label class="flabel" for="editTagline">Tagline</label>
     <textarea class="field" id="editTagline" maxlength="200" style="min-height:64px;"></textarea>
-    <label class="flabel" for="editBio">About you (shown on your page)</label>
+    <label class="flabel" for="editBio">Bio (shown on your page)</label>
     <textarea class="field" id="editBio" maxlength="600" placeholder="Tell supporters about you and your work"></textarea>
     <label class="flabel" for="editPrice">Price per lunch ($)</label>
     <input class="field" id="editPrice" inputmode="decimal" placeholder="3.70">
@@ -388,7 +420,7 @@
 
 <!-- Tab bar -->
 <nav class="tabs hidden" id="tabs">
-  <button class="tab on" data-tab="sLunches"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1.2 12.2a1 1 0 0 1-1 .8H7.7a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></span>Home</button>
+  <button class="tab on" data-tab="sLunches"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1.2 12.2a1 1 0 0 1-1 .8H7.7a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></span>Lunches</button>
   <button class="tab" data-tab="sPosts"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>Posts</button>
   <button class="tab" data-tab="sMessages"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>Messages<span class="badge hidden" id="msgBadge"></span></button>
 </nav>
@@ -526,7 +558,7 @@
     }
     tsWidget = window.turnstile.render('#tsLogin', {
       sitekey: TURNSTILE_SITE_KEY, size: 'flexible', theme: 'light',
-      callback: t => { tsToken = t; $('loginMsg').textContent = ''; },
+      callback: t => { tsToken = t; if (!$('loginMsg').classList.contains('ok-msg')) $('loginMsg').textContent = ''; },
       'expired-callback': () => { tsToken = null; },
       'error-callback': () => { tsToken = null; $('loginMsg').textContent = 'The "Verify you are human" check had a problem. Try again in a moment.'; }
     });
@@ -547,20 +579,56 @@
     loadTurnstileScript();
     mountTurnstile();
   }
+  let authMode = 'login';
+  const BTN_TEXT = { login: 'Log in', signup: 'Sign up', forgot: 'Send reset link' };
+  function setAuthMode(mode) {
+    authMode = mode;
+    const forgot = mode === 'forgot';
+    document.querySelectorAll('#authSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+    $('authSeg').classList.toggle('hidden', forgot);
+    $('loginSub').classList.toggle('hidden', forgot);
+    $('oauthBox').classList.toggle('hidden', forgot);
+    $('forgotTitle').classList.toggle('hidden', !forgot);
+    $('forgotSub').classList.toggle('hidden', !forgot);
+    $('password').classList.toggle('hidden', forgot);
+    $('password').placeholder = mode === 'signup' ? 'Password (6+ characters)' : 'Password';
+    $('password').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+    $('loginBtn').textContent = BTN_TEXT[mode];
+    $('forgotBtn').textContent = forgot ? '‹ Back to log in' : 'Forgot password?';
+    $('forgotBtn').classList.toggle('hidden', mode === 'signup');
+    $('loginMsg').textContent = ''; $('loginMsg').classList.remove('ok-msg');
+  }
+  document.querySelectorAll('#authSeg button').forEach(b => b.addEventListener('click', () => { buzz('light'); setAuthMode(b.dataset.mode); }));
+  $('forgotBtn').addEventListener('click', () => { buzz('light'); setAuthMode(authMode === 'forgot' ? 'login' : 'forgot'); });
+
   $('loginBtn').addEventListener('click', async () => {
     const email = $('email').value.trim(), password = $('password').value;
-    const m = $('loginMsg');
-    if (!email || !password) { m.textContent = 'Enter your email and password.'; return; }
+    const m = $('loginMsg'); m.classList.remove('ok-msg');
+    if (!email) { m.textContent = 'Enter your email.'; return; }
+    if (authMode !== 'forgot' && !password) { m.textContent = 'Enter your password.'; return; }
+    if (authMode === 'signup' && password.length < 6) { m.textContent = 'Your password needs at least 6 characters.'; return; }
     if (!tsToken) { m.textContent = 'Please finish the "Verify you are human" check first.'; return; }
-    $('loginBtn').disabled = true; $('loginBtn').textContent = 'Logging in...';
+    const btn = $('loginBtn'); btn.disabled = true;
+    btn.textContent = authMode === 'signup' ? 'Signing up...' : authMode === 'forgot' ? 'Sending...' : 'Logging in...';
     m.textContent = '';
     try {
-      const { data, error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken: tsToken } });
-      if (error) { m.textContent = error.message === 'Invalid login credentials' ? 'That email or password is not right.' : error.message; }
-      else { session = data.session; buzz('success'); $('password').value = ''; await afterLogin(); }
+      if (authMode === 'forgot') {
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: SITE + '/', captchaToken: tsToken });
+        if (error) m.textContent = error.message;
+        else { m.textContent = 'Check your email for a reset link. Open it to make a new password, then come back and log in.'; m.classList.add('ok-msg'); buzz('success'); }
+      } else if (authMode === 'signup') {
+        const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: SITE + '/', captchaToken: tsToken } });
+        if (error) m.textContent = /registered|exists/i.test(error.message) ? 'That email already has an account. Tap Log in instead.' : error.message;
+        else if (!data.session) { m.textContent = 'Check your email to confirm your account, then come back and log in.'; m.classList.add('ok-msg'); }
+        else { session = data.session; buzz('success'); $('password').value = ''; await afterLogin(); }
+      } else {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken: tsToken } });
+        if (error) { m.textContent = error.message === 'Invalid login credentials' ? 'That email or password is not right.' : error.message; }
+        else { session = data.session; buzz('success'); $('password').value = ''; await afterLogin(); }
+      }
     } catch (e) { m.textContent = 'Something went wrong. Check your internet and try again.'; }
     resetTurnstile();
-    $('loginBtn').disabled = false; $('loginBtn').textContent = 'Log in';
+    btn.disabled = false; btn.textContent = BTN_TEXT[authMode];
   });
   $('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
   // ---------- Google / Apple sign-in ----------
@@ -618,8 +686,6 @@
     } catch (e) {}
   })();
 
-  $('forgotBtn').addEventListener('click', () => openWeb(SITE + '/'));
-  $('newBtn').addEventListener('click', () => openWeb(SITE + '/'));
 
   // ---------- After login ----------
   async function loadMe() {
@@ -669,11 +735,16 @@
       const got = countLunches(supporters);
       const pct = Math.min(100, Math.round((got / goalLunches) * 100));
       $('goalName').textContent = 'Lunch goal';
+      $('gbText').textContent = (me.goal_label ? me.goal_label + ': ' : 'Lunch goal: ') + got + ' of ' + plural(goalLunches);
+      $('gbFill').style.width = pct + '%'; $('gbSet').textContent = 'Edit';
+      $('gbFill').parentElement.classList.remove('hidden');
       $('goalPct').textContent = pct + '%';
       $('goalAmt').textContent = got + ' of ' + plural(goalLunches);
       setBagLevel(pct);
     } else {
       $('goalBox').classList.add('hidden'); $('goalNone').classList.remove('hidden');
+      $('gbText').textContent = 'Set a goal and watch your bag fill up'; $('gbSet').textContent = 'Set a goal';
+      $('gbFill').parentElement.classList.add('hidden');
     }
 
     // Totals
@@ -688,8 +759,8 @@
     $('whoList').innerHTML = supporters.length ? supporters.slice(0, 50).map(s => {
       const qty = Number(s.qty) || 1;
       return '<div class="who"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
-        '<div class="name">' + esc(s.name || 'Someone') + ' bought you ' + plural(qty) + (s.weekly ? ' · weekly' : '') + '</div>' +
-        (s.message ? '<div class="note">' + esc(s.message) + '</div>' : '') +
+        '<div class="name">' + esc(s.name || 'Anonymous') + ' bought you ' + plural(qty) + (s.weekly ? ' · weekly' : '') + '</div>' +
+        (s.message && !isHidden(s) ? '<div class="note">' + esc(s.message) + '</div>' : '') +
         '<div class="when">' + timeAgo(s.created_at) + '</div></div>' +
         '<div class="money">+$' + money(s.amount) + '</div></div>';
     }).join('') : '<p class="empty">No lunches yet. Share your bag from the Share tab and your first lunch will show up here. 🍎</p>';
@@ -708,10 +779,13 @@
     ).join('') : '<p class="empty">No posts yet. Tap + to share an update with your supporters.</p>';
   }
   $('periodSel').addEventListener('change', () => { buzz('light'); renderAll(); });
+  $('codeBtn').addEventListener('click', () => { buzz('light'); codeFrom = lastTab; show('sShare'); });
+  $('gbSet').addEventListener('click', () => openEdit());
   $('meBtn').addEventListener('click', () => { buzz('light'); show('sSettings'); });
   $('setBack').addEventListener('click', () => { buzz('light'); show(lastTab); });
-  $('myCodeBtn').addEventListener('click', () => { buzz('light'); show('sShare'); });
-  $('shareBack').addEventListener('click', () => { buzz('light'); show('sSettings'); });
+  let codeFrom = 'sSettings';
+  $('myCodeBtn').addEventListener('click', () => { buzz('light'); codeFrom = 'sSettings'; show('sShare'); });
+  $('shareBack').addEventListener('click', () => { buzz('light'); show(codeFrom); });
   $('fab').addEventListener('click', () => { buzz('light'); show('sPosts'); openPostSheet(true); });
   function openPostSheet(on) { $('postSheet').classList.toggle('hidden', !on); $('tabs').classList.toggle('hidden', on); $('fab').classList.toggle('hidden', on); if (on) setTimeout(() => $('postTitle').focus(), 250); }
   $('newPostBtn').addEventListener('click', () => { buzz('light'); openPostSheet(true); });
@@ -744,7 +818,15 @@
 
   // ---------- Messages (notes supporters leave with a lunch) ----------
   function msgKey() { return 'fmlb_msgread_' + me.id; }
-  function withMessages() { return supporters.filter(s => s.message && String(s.message).trim()); }
+  function hiddenKey() { return 'fmlb_hidden_' + me.id; }
+  function hiddenIds() { try { return JSON.parse(store(hiddenKey()) || '[]'); } catch (e) { return []; } }
+  function isHidden(s) { return hiddenIds().indexOf(String(s.id)) !== -1; }
+  function setHidden(id, on) {
+    let ids = hiddenIds().filter(x => x !== String(id));
+    if (on) ids.push(String(id));
+    store(hiddenKey(), JSON.stringify(ids));
+  }
+  function withMessages() { return supporters.filter(s => s.message && String(s.message).trim() && !isHidden(s)); }
   function isUnread(s) { const r = store(msgKey()); return r ? new Date(s.created_at) > new Date(r) : false; }
   function renderMessages() {
     if (!me) return;
@@ -754,15 +836,17 @@
     $('msgBadge').textContent = unread > 9 ? '9+' : unread;
     $('msgBadge').classList.toggle('hidden', !unread);
     const q = $('msgSearch').value.trim().toLowerCase();
-    let list = msgFilter === 'unread' ? all.filter(isUnread) : all;
+    let list = msgFilter === 'unread' ? all.filter(isUnread) : msgFilter === 'hidden' ? supporters.filter(s => s.message && isHidden(s)) : all;
     if (q) list = list.filter(s => (String(s.name || '') + ' ' + s.message).toLowerCase().indexOf(q) !== -1);
     $('msgList').innerHTML = list.length ? list.map(s =>
       '<div class="who' + (isUnread(s) ? ' unread' : '') + '"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
       '<div class="name">' + esc(s.name || 'Anonymous') + '</div>' +
       '<div class="note">' + esc(s.message) + '</div>' +
-      '<div class="when">' + timeAgo(s.created_at) + ' · ' + plural(Number(s.qty) || 1) + '</div></div>' +
+      '<div class="when">' + timeAgo(s.created_at) + ' · ' + plural(Number(s.qty) || 1) + '</div>' +
+      '<div class="msg-acts">' + (isHidden(s) ? '<button data-act="unhide" data-id="' + esc(s.id) + '">Show again</button>' : '<button data-act="hide" data-id="' + esc(s.id) + '">Hide</button>') +
+      '<button class="rep" data-act="report" data-id="' + esc(s.id) + '">Report</button></div></div>' +
       '<div class="money">+$' + money(s.amount) + '</div></div>'
-    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : 'No messages yet. When someone buys you lunch and leaves a note, it shows up here. 💌') + '</p>';
+    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : msgFilter === 'hidden' ? 'No hidden messages.' : 'No messages yet. When someone buys you lunch and leaves a note, it shows up here. 💌') + '</p>';
   }
   function markMessagesRead() {
     const all = withMessages();
@@ -775,6 +859,17 @@
     buzz('light'); renderMessages();
   }));
   $('msgSearch').addEventListener('input', renderMessages);
+  $('msgList').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const s = supporters.find(x => String(x.id) === b.dataset.id); if (!s) return;
+    if (b.dataset.act === 'hide') { setHidden(s.id, true); buzz('light'); toast('Message hidden. Find it under Hidden.'); renderAll(); }
+    else if (b.dataset.act === 'unhide') { setHidden(s.id, false); buzz('light'); toast('Message shown again'); renderAll(); }
+    else if (b.dataset.act === 'report') {
+      setHidden(s.id, true); renderAll();
+      openWeb('mailto:' + HELP_EMAIL + '?subject=' + encodeURIComponent('Report a message') + '&body=' + encodeURIComponent('Page: ' + linkFor(me.handle) + '\nMessage ID: ' + s.id + '\nFrom: ' + (s.name || 'Anonymous') + '\nMessage: ' + s.message + '\n\nWhat is wrong with it:\n'));
+      toast('Thanks. We hid it and opened an email so you can tell us more.');
+    }
+  });
 
   // ---------- Edit my page ----------
   function fillEdit() {
@@ -883,7 +978,7 @@
     if (!fresh.length) return;
     store(seenKey, newest.created_at);
     const n = countLunches(fresh);
-    const who = fresh.length === 1 ? (fresh[0].name || 'Someone') : fresh.length + ' people';
+    const who = fresh.length === 1 ? (fresh[0].name || 'Anonymous') : fresh.length + ' people';
     $('popTitle').textContent = n === 1 ? 'Someone filled your bag!' : 'Your bag is filling up!';
     $('popText').textContent = who + ' bought you ' + plural(n) + ' (+$' + money(sumAmt(fresh)) + ')';
     $('pop').classList.remove('hidden');
@@ -911,8 +1006,36 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(false); });
 
   // ---------- No page yet ----------
-  $('makePageBtn').addEventListener('click', () => openWeb(SITE + '/'));
-  $('noPageRefresh').addEventListener('click', () => afterLogin());
+  let hTimer = null;
+  function hcheck(text, cls) { const h = $('hcheck'); h.textContent = text; h.className = 'hcheck' + (cls ? ' ' + cls : ''); }
+  $('setupHandle').addEventListener('input', e => {
+    e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    const h = e.target.value;
+    clearTimeout(hTimer);
+    if (!h) { hcheck("Letters, numbers and _ only, 3 to 24 characters. You can't change it later."); return; }
+    if (h.length < 3) { hcheck('Needs at least 3 characters.', 'bad'); return; }
+    hcheck('Checking...');
+    hTimer = setTimeout(async () => {
+      try {
+        const { data } = await sb.from('lunch_profiles').select('id').eq('handle', h).maybeSingle();
+        if ($('setupHandle').value !== h) return;
+        if (data) hcheck('That link is taken. Try another.', 'bad'); else hcheck('✓ That link is free', 'ok');
+      } catch (err) { hcheck(''); }
+    }, 400);
+  });
+  $('makePageBtn').addEventListener('click', async () => {
+    const name = $('setupName').value.trim(), handle = $('setupHandle').value.trim();
+    const m = $('setupMsg'); m.textContent = '';
+    if (!name) { m.textContent = 'Add a page name.'; return; }
+    if (!/^[a-z0-9_]{3,24}$/.test(handle)) { m.textContent = 'Your link needs 3 to 24 letters, numbers or _.'; return; }
+    const btn = $('makePageBtn'); btn.disabled = true; btn.textContent = 'Making your page...';
+    try {
+      const { data, error } = await sb.from('lunch_profiles').insert({ id: session.user.id, handle, name, tagline: DEFAULT_TAGLINE }).select().single();
+      if (error) { m.textContent = error.code === '23505' ? 'That link is taken. Try another.' : 'Could not make your page. Try again.'; }
+      else { me = data; buzz('success'); toast('Your page is ready'); await afterLogin(); }
+    } catch (e) { m.textContent = 'Could not make your page. Check your internet and try again.'; }
+    btn.disabled = false; btn.textContent = 'Make my page';
+  });
   $('noPageOut').addEventListener('click', () => logout());
 
   // ---------- Settings ----------
