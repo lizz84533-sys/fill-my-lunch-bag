@@ -206,6 +206,7 @@
   .topbar .avatar-btn { width: 46px; height: 46px; }
   .hero-row { display: flex; gap: 14px; align-items: center; }
   .hero-row .left { flex: 1; min-width: 0; }
+  .hero-logo { width: 92px; height: 92px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 2px 10px rgba(91,60,30,0.15); }
   .ringbox { position: relative; width: 108px; height: 108px; flex: none; }
   .ringbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .ringbox svg circle { transition: stroke-dashoffset 0.6s ease; }
@@ -296,16 +297,12 @@
       <div class="left">
         <select class="period" id="periodSel" aria-label="Time period"><option value="30">Last 30 days</option><option value="all">All time</option></select>
         <div class="money-big" id="total30" style="margin-top:8px;">$0</div>
-        <div class="sub2" id="count30">0 lunches</div>
+        <div class="sub2" id="count30">in tips</div>
       </div>
-      <div class="ringbox" aria-hidden="true">
-        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="none" stroke="#EFE2CC" stroke-width="8"/><circle id="ringFill" cx="60" cy="60" r="54" fill="none" stroke="#8B5A2B" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="339.3" transform="rotate(-90 60 60)"/></svg>
-        <img src="logo.jpg" alt="">
-        <span class="ringpct" id="bagPct"></span>
-      </div>
+      <img class="hero-logo" src="logo.jpg" alt="">
     </div>
     <span class="hidden" id="totalAll"></span><span class="hidden" id="countAll"></span>
-    <div class="goalbar" id="goalBar">
+    <div class="goalbar hidden" id="goalBar">
       <div class="gb-top"><span id="gbText">Lunch goal</span><button class="gb-set" id="gbSet">Set a goal</button></div>
       <div class="gb-track hidden"><div class="gb-fill" id="gbFill"></div></div>
     </div>
@@ -332,7 +329,7 @@
   </div>
 
 
-  <div class="list-head"><h3>Recent supporters</h3></div>
+  <div class="list-head"><h3>Recent tips</h3></div>
   <div class="card" id="whoList"></div>
 </section>
 
@@ -360,7 +357,7 @@
     <button class="chip" data-filter="hidden">Hidden</button>
   </div>
   <div class="card" id="msgList"></div>
-  <p class="tiny" style="margin-top:6px;">Notes supporters leave when they buy you lunch show up here. Only you can see them.</p>
+  <p class="tiny" style="margin-top:6px;">Notes people leave when they tip you show up here. Only you can see them.</p>
 </section>
 
 <!-- Edit my page -->
@@ -385,16 +382,18 @@
     <textarea class="field" id="editTagline" maxlength="200" style="min-height:64px;"></textarea>
     <label class="flabel" for="editBio">Bio (shown on your page)</label>
     <textarea class="field" id="editBio" maxlength="600" placeholder="Tell supporters about you and your work"></textarea>
-    <label class="flabel" for="editPrice">Price per lunch ($)</label>
+    <label class="flabel" for="editPrice">Tip amount for 1 lunch ($)</label>
     <input class="field" id="editPrice" inputmode="decimal" placeholder="3.70">
+    <div class="hidden">
     <label class="flabel" for="editGoalLabel">Goal name (optional)</label>
     <input class="field" id="editGoalLabel" maxlength="80" placeholder="New camera for my videos">
     <label class="flabel" for="editGoalAmount">Goal amount in dollars (0 = no goal)</label>
     <input class="field" id="editGoalAmount" inputmode="numeric" placeholder="0">
-    <label class="flabel" for="editThanks">Thank you message (shown after someone buys lunch)</label>
+    </div>
+    <label class="flabel" for="editThanks">Thank you message (shown after someone tips you)</label>
     <textarea class="field" id="editThanks" maxlength="500" placeholder="Thank you so much for the lunch!"></textarea>
     <div class="sw-row">
-      <div><div class="t">Accept weekly lunches</div><div class="d">Let supporters treat you every week.</div></div>
+      <div><div class="t">Accept weekly tips</div><div class="d">Let people tip you lunch every week.</div></div>
       <label class="sw"><input type="checkbox" id="editWeekly"><span></span></label>
     </div>
     <div class="msg" id="editMsg"></div>
@@ -411,7 +410,7 @@
 <section class="screen hidden" id="sShare">
   <div class="navbar"><button class="back-nav hidden" id="shareBack" aria-label="Back">‹</button><div class="t">My code</div></div>
   <div class="card qr-card">
-    <div class="tip" style="margin:0;">In person? Let them scan this with their phone camera to buy you lunch</div>
+    <div class="tip" style="margin:0;">In person? Let them scan this with their phone camera to tip you lunch</div>
     <div class="qr-box" id="qrBox"></div>
     <div class="qr-name" id="qrName"></div>
     <div class="qr-link" id="qrLink"></div>
@@ -456,7 +455,7 @@
 <div class="pop hidden" id="pop">
   <div class="pop-card">
     <img class="emo" src="logo.jpg" alt="" style="width:110px;height:110px;border-radius:50%;display:block;margin:0 auto;box-shadow:0 4px 14px rgba(91,60,30,0.2);">
-    <h2 id="popTitle">Someone filled your bag!</h2>
+    <h2 id="popTitle">You got a tip!</h2>
     <p id="popText"></p>
     <button class="btn" id="popClose">Yum, thanks!</button>
   </div>
@@ -739,7 +738,7 @@
       startPolling();
     } catch (e) {
       show('sLunches');
-      $('whoList').innerHTML = '<p class="empty">Could not load your lunches. Check your internet and tap ↻.</p>';
+      $('whoList').innerHTML = '<p class="empty">Could not load your tips. Check your internet, then close and reopen the app.</p>';
     }
   }
 
@@ -776,7 +775,7 @@
     const cutoff = $('periodSel').value === 'all' ? 0 : Date.now() - 30 * 86400000;
     const last30 = supporters.filter(s => new Date(s.created_at).getTime() >= cutoff);
     $('total30').textContent = '$' + money(sumAmt(last30));
-    $('count30').textContent = plural(countLunches(last30));
+    $('count30').textContent = 'in tips · ' + plural(countLunches(last30));
     $('totalAll').textContent = '$' + money(allTotal);
     $('countAll').textContent = plural(countLunches(supporters));
 
@@ -784,11 +783,11 @@
     $('whoList').innerHTML = supporters.length ? supporters.slice(0, 50).map(s => {
       const qty = Number(s.qty) || 1;
       return '<div class="who"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
-        '<div class="name">' + esc(s.name || 'Anonymous') + ' bought you ' + plural(qty) + (s.weekly ? ' · weekly' : '') + '</div>' +
+        '<div class="name">' + esc(s.name || 'Anonymous') + ' tipped you ' + plural(qty) + (s.weekly ? ' · weekly' : '') + '</div>' +
         (s.message && !isHidden(s) ? '<div class="note">' + esc(s.message) + '</div>' : '') +
         '<div class="when">' + timeAgo(s.created_at) + '</div></div>' +
         '<div class="money">+$' + money(s.amount) + '</div></div>';
-    }).join('') : '<p class="empty">No lunches yet. Share your bag from the Share tab and your first lunch will show up here. 🍎</p>';
+    }).join('') : '<p class="empty">No tips yet. Tap Show my code or share your link, and your first tip will show up here. 🍎</p>';
 
     $('acctEmail').textContent = 'Logged in as ' + (session && session.user ? session.user.email : '');
     renderPosts();
@@ -871,7 +870,7 @@
       '<div class="msg-acts">' + (isHidden(s) ? '<button data-act="unhide" data-id="' + esc(s.id) + '">Show again</button>' : '<button data-act="hide" data-id="' + esc(s.id) + '">Hide</button>') +
       '<button class="rep" data-act="report" data-id="' + esc(s.id) + '">Report</button></div></div>' +
       '<div class="money">+$' + money(s.amount) + '</div></div>'
-    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : msgFilter === 'hidden' ? 'No hidden messages.' : 'No messages yet. When someone buys you lunch and leaves a note, it shows up here. 💌') + '</p>';
+    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : msgFilter === 'hidden' ? 'No hidden messages.' : 'No messages yet. When someone tips you and leaves a note, it shows up here. 💌') + '</p>';
   }
   function markMessagesRead() {
     const all = withMessages();
@@ -968,7 +967,7 @@
   $('bankBtn').addEventListener('click', () => openWeb(SITE + '/'));
 
   function setBagLevel(pct) {}
-  function setBag(pct) {
+  function setBag(pct) { return;
     const full = 339.3, v = pct == null ? 0 : pct;
     $('ringFill').setAttribute('stroke-dashoffset', String(full - full * v / 100));
     $('bagPct').textContent = pct == null ? '' : pct + '%';
@@ -1009,8 +1008,8 @@
     store(seenKey, newest.created_at);
     const n = countLunches(fresh);
     const who = fresh.length === 1 ? (fresh[0].name || 'Anonymous') : fresh.length + ' people';
-    $('popTitle').textContent = n === 1 ? 'Someone filled your bag!' : 'Your bag is filling up!';
-    $('popText').textContent = who + ' bought you ' + plural(n) + ' (+$' + money(sumAmt(fresh)) + ')';
+    $('popTitle').textContent = fresh.length === 1 ? 'You got a tip!' : 'You got ' + fresh.length + ' tips!';
+    $('popText').textContent = who + ' tipped you ' + plural(n) + ' (+$' + money(sumAmt(fresh)) + ')';
     $('pop').classList.remove('hidden');
     buzz('success'); crunch();
   }
