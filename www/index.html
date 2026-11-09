@@ -206,7 +206,12 @@
   .topbar .avatar-btn { width: 46px; height: 46px; }
   .hero-row { display: flex; gap: 14px; align-items: center; }
   .hero-row .left { flex: 1; min-width: 0; }
-  .bagsvg { width: 96px; height: 116px; flex: none; }
+  .ringbox { position: relative; width: 108px; height: 108px; flex: none; }
+  .ringbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ringbox svg circle { transition: stroke-dashoffset 0.6s ease; }
+  .ringbox img { position: absolute; inset: 12px; width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
+  .ringpct { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); background: var(--kraft-dark); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .ringpct:empty { display: none; }
   .code-btn { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
   .code-btn svg { width: 22px; height: 22px; }
   .topbar .avatar-btn { width: 40px; height: 40px; border-radius: 50%; border: none; padding: 0; overflow: hidden; background: #EFE2CC; }
@@ -293,15 +298,11 @@
         <div class="money-big" id="total30" style="margin-top:8px;">$0</div>
         <div class="sub2" id="count30">0 lunches</div>
       </div>
-      <svg class="bagsvg" viewBox="0 0 100 120" aria-hidden="true">
-  <defs><clipPath id="bagClip"><path d="M18 30 L82 30 L88 112 Q88 116 84 116 L16 116 Q12 116 12 112 Z"/></clipPath></defs>
-  <path d="M18 30 L82 30 L88 112 Q88 116 84 116 L16 116 Q12 116 12 112 Z" fill="#EFE2CC"/>
-  <rect id="bagFill" x="0" y="116" width="100" height="0" fill="#C9A77C" clip-path="url(#bagClip)"/>
-  <path d="M18 30 L82 30 L88 112 Q88 116 84 116 L16 116 Q12 116 12 112 Z" fill="none" stroke="#8B5A2B" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M18 30 L24 12 L76 12 L82 30" fill="#E3D1B2" stroke="#8B5A2B" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M24 12 L30 22 L36 12 L42 22 L48 12 L54 22 L60 12 L66 22 L72 12" fill="none" stroke="#8B5A2B" stroke-width="2" stroke-linejoin="round"/>
-  <text id="bagPct" x="50" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#3B2A1E"></text>
-</svg>
+      <div class="ringbox" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="none" stroke="#EFE2CC" stroke-width="8"/><circle id="ringFill" cx="60" cy="60" r="54" fill="none" stroke="#8B5A2B" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="339.3" transform="rotate(-90 60 60)"/></svg>
+        <img src="logo.jpg" alt="">
+        <span class="ringpct" id="bagPct"></span>
+      </div>
     </div>
     <span class="hidden" id="totalAll"></span><span class="hidden" id="countAll"></span>
     <div class="goalbar" id="goalBar">
@@ -968,8 +969,8 @@
 
   function setBagLevel(pct) {}
   function setBag(pct) {
-    const h = pct == null ? 0 : Math.round(86 * pct / 100);
-    $('bagFill').setAttribute('y', String(116 - h)); $('bagFill').setAttribute('height', String(h));
+    const full = 339.3, v = pct == null ? 0 : pct;
+    $('ringFill').setAttribute('stroke-dashoffset', String(full - full * v / 100));
     $('bagPct').textContent = pct == null ? '' : pct + '%';
   }
 
