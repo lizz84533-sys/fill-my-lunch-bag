@@ -37,18 +37,36 @@
   .head h1 { font-size: 26px; }
   .navbar { position: sticky; top: calc(-1 * (env(safe-area-inset-top) + 18px)); margin: calc(-1 * (env(safe-area-inset-top) + 18px)) -18px 14px; padding: calc(env(safe-area-inset-top) + 12px) 18px 10px; background: rgba(250,243,230,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); z-index: 4; }
   .navbar .t { text-align: center; font-weight: 700; font-size: 17px; color: var(--ink); }
+  .navbar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
+  .navbar .t { grid-column: 2; }
+  .nav-act { grid-column: 3; justify-self: end; width: 36px; height: 36px; border-radius: 50%; border: none; background: #F0E3CC; color: var(--kraft-dark); display: grid; place-items: center; padding: 0; }
+  .nav-act svg { width: 20px; height: 20px; }
+  .hero { padding: 18px 16px; }
+  .hero .row { display: flex; justify-content: space-between; align-items: center; }
+  .hero .money-big { font-family: Georgia, serif; font-size: 40px; font-weight: 700; line-height: 1.1; margin-top: 2px; }
+  .hero .sub2 { color: var(--soft); font-size: 14px; }
+  .hero .alltime { display: flex; justify-content: space-between; border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; font-size: 14px; color: var(--soft); }
+  .hero .alltime b { color: var(--ink); }
+  .me-pic { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; grid-column: 1; }
+  .sheet-wrap { position: fixed; inset: 0; background: rgba(59,42,30,0.4); z-index: 40; display: flex; align-items: flex-end; }
+  .sheet { background: var(--paper); width: 100%; border-radius: 20px 20px 0 0; padding: 10px 18px calc(env(safe-area-inset-bottom) + 18px); animation: up 0.25s ease; }
+  .sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: #D9C9AE; margin: 0 auto 10px; }
+  .sheet-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .sheet-top button { background: none; border: none; color: var(--kraft-dark); font-size: 16px; padding: 6px 0; }
+  .sheet-top .t { font-weight: 700; font-size: 17px; }
+  @keyframes up { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .bigtitle { font-family: Georgia, serif; font-weight: 700; font-size: 30px; margin: 4px 2px 14px; }
   .sect { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--soft); font-weight: 600; margin: 18px 4px 6px; }
-  .group { background: var(--card); border-radius: 14px; overflow: hidden; margin-bottom: 6px; border: 1px solid var(--line); }
+  .group { background: var(--card); border-radius: 14px; overflow: hidden; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(91,60,30,0.06); }
   .group .set-item { padding: 14px 16px; border-top: 1px solid var(--line); }
   .group .set-item:first-child { border-top: none; }
   .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .brand img { width: 52px; height: 52px; border-radius: 50%; flex: none; box-shadow: 0 2px 8px rgba(91,60,30,0.18); }
   .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--kraft-dark); font-size: 18px; display: grid; place-items: center; }
-  .icon-btn.spin span { display: inline-block; animation: spin 0.8s linear infinite; }
+  .icon-btn.spin span, .nav-act.spin span { display: inline-block; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px; margin-bottom: 14px; }
+  .card { background: var(--card); border: none; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(91,60,30,0.06); }
   .label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); font-weight: 600; }
 
   /* ---------- Login ---------- */
@@ -89,7 +107,7 @@
   .goal-empty button { margin-top: 10px; width: auto; padding: 10px 18px; font-size: 14px; }
 
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .stat { background: var(--card); border-radius: 14px; padding: 14px; box-shadow: 0 1px 2px rgba(91,60,30,0.06); }
   .stat .big { font-family: Georgia, serif; font-size: 26px; font-weight: 700; margin-top: 4px; }
   .stat .small { font-size: 13px; color: var(--soft); }
 
@@ -214,9 +232,13 @@
 
 <!-- Lunches -->
 <section class="screen hidden" id="sLunches">
-  <div class="head">
-    <div class="brand"><img src="logo.jpg" alt=""><div><h1>Your lunch bag</h1><p class="hello" id="hello"></p></div></div>
-    <button class="icon-btn" id="refreshBtn" aria-label="Refresh"><span>↻</span></button>
+  <div class="navbar"><img class="me-pic" id="mePic" src="logo.jpg" alt=""><div class="t">Lunches</div><button class="nav-act" id="refreshBtn" aria-label="Refresh"><span style="display:grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></span></button></div>
+  <p class="hello" id="hello" style="margin:0 4px 10px;font-size:15px;"></p>
+  <div class="card hero">
+    <div class="row"><div class="label">Last 30 days</div></div>
+    <div class="money-big" id="total30">$0</div>
+    <div class="sub2" id="count30">0 lunches</div>
+    <div class="alltime"><span>All time</span><span><b id="totalAll">$0</b> · <span id="countAll">0 lunches</span></span></div>
   </div>
 
   <div class="card">
@@ -233,15 +255,11 @@
     </div>
     <div id="goalNone" class="goal-empty hidden">
       <div class="label">Fill the bag</div>
-      <p style="margin:6px 0 0;">Set a lunch goal and watch your bag fill up every time someone tips you lunch.</p>
+      <p style="margin:6px 0 0;">Set a lunch goal and watch your bag fill up.</p>
       <button class="btn ghost" id="setGoalBtn">Set my goal</button>
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><div class="label">Last 30 days</div><div class="big" id="total30">$0</div><div class="small" id="count30">0 lunches</div></div>
-    <div class="stat"><div class="label">All time</div><div class="big" id="totalAll">$0</div><div class="small" id="countAll">0 lunches</div></div>
-  </div>
 
   <div class="list-head"><h3>Who bought you lunch</h3></div>
   <div class="card" id="whoList"></div>
@@ -249,15 +267,16 @@
 
 <!-- Posts -->
 <section class="screen hidden" id="sPosts">
-  <div class="navbar"><div class="t">Posts</div></div>
-  <div class="card">
-    <div class="label" style="margin-bottom:10px;">Write a post</div>
-    <input class="field" id="postTitle" maxlength="120" placeholder="Title">
-    <textarea class="field" id="postBody" maxlength="2000" placeholder="Share an update with your supporters"></textarea>
-    <button class="btn" id="postBtn">Post it</button>
-  </div>
-  <div class="list-head"><h3>Your posts</h3></div>
+  <div class="navbar"><div class="t">Posts</div><button class="nav-act" id="newPostBtn" aria-label="Write a post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
   <div class="card" id="postList"></div>
+  <div class="sheet-wrap hidden" id="postSheet">
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sheet-top"><button id="postCancel">Cancel</button><div class="t">New post</div><button id="postBtn" style="font-weight:700;">Post</button></div>
+      <input class="field" id="postTitle" maxlength="120" placeholder="Title">
+      <textarea class="field" id="postBody" maxlength="2000" placeholder="Share an update with your supporters" style="min-height:140px;"></textarea>
+    </div>
+  </div>
 </section>
 
 <!-- Messages -->
@@ -320,7 +339,7 @@
 <section class="screen hidden" id="sShare">
   <div class="navbar"><div class="t">Share</div></div>
   <div class="card qr-card">
-    <div class="label">Show somebody this code so they can fill your lunch bag</div>
+    <div class="tip" style="margin:0;">Let someone scan this to buy you lunch</div>
     <div class="qr-box" id="qrBox"></div>
     <div class="qr-name" id="qrName"></div>
     <div class="qr-link" id="qrLink"></div>
@@ -328,11 +347,6 @@
       <button class="btn" id="shareBtn">Share link</button>
       <button class="btn ghost" id="copyBtn">Copy link</button>
     </div>
-  </div>
-  <div class="card">
-    <h3 style="font-size:18px;margin-bottom:6px;">Ask to get your lunch bag filled</h3>
-    <p class="tip">Let somebody scan your code with their phone camera, or send them your link.</p>
-    <p class="tip" style="margin-bottom:0;">You can also post your link in your bio or on your stream.</p>
   </div>
 </section>
 
@@ -357,7 +371,7 @@
     <div style="height:10px"></div>
     <button class="btn danger" id="deleteBtn">Delete my account</button>
   </div>
-  <p class="tiny"><span class="hand-text" style="font-size:24px;color:var(--ink);">Fill My Lunch Bag</span><br>Oxnard, California · buylunchh@gmail.com</p>
+  <p class="tiny">Version 1.1</p>
 </section>
 
 <!-- Tab bar -->
@@ -627,6 +641,7 @@
   // ---------- Render ----------
   function renderAll() {
     $('hello').textContent = 'Hi, ' + (me.name || 'friend') + ' 👋';
+    $('mePic').src = me.avatar_url || 'logo.jpg';
 
     // Fill the bag goal
     const allTotal = sumAmt(supporters);
@@ -674,8 +689,12 @@
       '<div class="post"><button class="pdel" data-id="' + esc(p.id) + '" aria-label="Delete post">🗑</button>' +
       '<div class="ptitle">' + esc(p.title) + '</div><div class="pbody">' + esc(p.body) + '</div>' +
       '<div class="pwhen">' + timeAgo(p.created_at) + '</div></div>'
-    ).join('') : '<p class="empty">No posts yet. Share an update and your supporters will see it on your page. 🍎</p>';
+    ).join('') : '<p class="empty">No posts yet. Tap + to share an update with your supporters.</p>';
   }
+  function openPostSheet(on) { $('postSheet').classList.toggle('hidden', !on); $('tabs').classList.toggle('hidden', on); if (on) setTimeout(() => $('postTitle').focus(), 250); }
+  $('newPostBtn').addEventListener('click', () => { buzz('light'); openPostSheet(true); });
+  $('postCancel').addEventListener('click', () => openPostSheet(false));
+  $('postSheet').addEventListener('click', e => { if (e.target.id === 'postSheet') openPostSheet(false); });
   $('postBtn').addEventListener('click', async () => {
     const title = $('postTitle').value.trim(), body = $('postBody').value.trim();
     if (!title || !body) { toast('Add a title and a message first'); return; }
@@ -685,9 +704,9 @@
       if (error) throw error;
       posts.unshift(data); renderPosts();
       $('postTitle').value = ''; $('postBody').value = '';
-      buzz('success'); toast('Post published');
+      openPostSheet(false); buzz('success'); toast('Post published');
     } catch (e) { toast('Could not post. Try again.'); }
-    btn.disabled = false; btn.textContent = 'Post it';
+    btn.disabled = false; btn.textContent = 'Post';
   });
   $('postList').addEventListener('click', async e => {
     const b = e.target.closest('.pdel'); if (!b) return;
