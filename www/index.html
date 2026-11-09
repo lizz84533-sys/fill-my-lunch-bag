@@ -48,8 +48,9 @@
   .hero .alltime { display: flex; justify-content: space-between; border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; font-size: 14px; color: var(--soft); }
   .hero .alltime b { color: var(--ink); }
   .me-pic { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; grid-column: 1; }
-  .sheet-wrap { position: fixed; inset: 0; background: rgba(59,42,30,0.4); z-index: 40; display: flex; align-items: flex-end; }
-  .sheet { background: var(--paper); width: 100%; border-radius: 20px 20px 0 0; padding: 10px 18px calc(env(safe-area-inset-bottom) + 18px); animation: up 0.25s ease; }
+  .sheet-wrap { position: fixed; inset: 0; background: rgba(59,42,30,0.4); z-index: 40; display: flex; align-items: flex-start; padding-top: calc(env(safe-area-inset-top) + 12px); }
+  .sheet { background: var(--paper); width: 100%; border-radius: 20px; margin: 0 8px; padding: 14px 18px 18px; animation: down 0.25s ease; }
+  @keyframes down { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: #D9C9AE; margin: 0 auto 10px; }
   .sheet-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .sheet-top button { background: none; border: none; color: var(--kraft-dark); font-size: 16px; padding: 6px 0; }
@@ -252,7 +253,7 @@
   <div class="login-wrap">
     <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
     <h1 class="hand">Fill My Lunch Bag</h1>
-    <p class="sub" id="loginSub">Sign up free so anyone who appreciates your work can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? No account needed.</p>
+    <p class="sub" id="loginSub">Sign up free so anyone who appreciates your work can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? Open their link or scan their code with your camera. No account needed.</p>
     <div class="seg" id="authSeg"><button type="button" class="on" data-mode="login">Log in</button><button type="button" data-mode="signup">Sign up</button></div>
     <h2 id="forgotTitle" class="hidden" style="text-align:center;font-size:22px;margin:0 0 6px;">Reset your password</h2>
     <p id="forgotSub" class="sub hidden" style="margin-top:0;">This is only for people who signed up with email and a password. If you use Google or Apple, go back and tap that button instead.</p>
@@ -340,7 +341,6 @@
   <div class="card" id="postList"></div>
   <div class="sheet-wrap hidden" id="postSheet">
     <div class="sheet">
-      <div class="grab"></div>
       <div class="sheet-top"><button id="postCancel">Cancel</button><div class="t">New post</div><button id="postBtn" style="font-weight:700;">Post</button></div>
       <input class="field" id="postTitle" maxlength="120" placeholder="Title">
       <textarea class="field" id="postBody" maxlength="2000" placeholder="Share an update with your supporters" style="min-height:140px;"></textarea>
@@ -892,7 +892,7 @@
     else if (b.dataset.act === 'report') {
       setHidden(s.id, true); renderAll();
       openWeb('mailto:' + HELP_EMAIL + '?subject=' + encodeURIComponent('Report a message') + '&body=' + encodeURIComponent('Page: ' + linkFor(me.handle) + '\nMessage ID: ' + s.id + '\nFrom: ' + (s.name || 'Anonymous') + '\nMessage: ' + s.message + '\n\nWhat is wrong with it:\n'));
-      toast('Thanks. We hid it and opened an email so you can tell us more.');
+      toast('Hidden. To report it, email ' + HELP_EMAIL + ' (we opened one for you).');
     }
   });
 
@@ -968,11 +968,7 @@
   $('bankBtn').addEventListener('click', () => openWeb(SITE + '/'));
 
   function setBagLevel(pct) {}
-  function setBag(pct) { return;
-    const full = 339.3, v = pct == null ? 0 : pct;
-    $('ringFill').setAttribute('stroke-dashoffset', String(full - full * v / 100));
-    $('bagPct').textContent = pct == null ? '' : pct + '%';
-  }
+  function setBag(pct) {}
 
   function renderShare() {
     if (!me) return;
