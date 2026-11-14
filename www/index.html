@@ -926,7 +926,7 @@
     $('editThanks').value = me.thank_you || '';
     $('editWeekly').checked = me.accept_weekly !== false;
     $('editMsg').textContent = '';
-    $('payoutText').textContent = me.stripe_charges_enabled ? '✅ Your bank is connected. Lunch money goes to it.' : 'Connect a bank so you can get paid. This opens on the website because Stripe handles it.';
+    $('payoutText').textContent = me.stripe_charges_enabled ? '✅ Your bank is connected. Your tips go to it.' : 'Connect a bank so you can get paid. This opens on the website because Stripe handles it.';
   }
   function openEdit() { if (!me) return; fillEdit(); buzz('light'); show('sEdit'); }
   $('editBack').addEventListener('click', () => { buzz('light'); show('sSettings'); });
