@@ -253,7 +253,7 @@
   <div class="login-wrap">
     <img class="login-logo" src="logo.jpg" alt="Fill My Lunch Bag">
     <h1 class="hand">Fill My Lunch Bag</h1>
-    <p class="sub" id="loginSub">Sign up free so anyone who appreciates your work can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? Open their link or scan their code with your camera. No account needed.</p>
+    <p class="sub" id="loginSub">For creators and everyday people. Sign up free so anyone who appreciates what you do can tip you lunch! Send them your link or let them scan your code.<br><br>Want to tip someone? Open their link or scan their code with your camera. No account needed.</p>
     <div class="seg" id="authSeg"><button type="button" class="on" data-mode="login">Log in</button><button type="button" data-mode="signup">Sign up</button></div>
     <h2 id="forgotTitle" class="hidden" style="text-align:center;font-size:22px;margin:0 0 6px;">Reset your password</h2>
     <p id="forgotSub" class="sub hidden" style="margin-top:0;">This is only for people who signed up with email and a password. If you use Google or Apple, go back and tap that button instead.</p>
@@ -780,12 +780,12 @@
     $('totalAll').textContent = '$' + money(allTotal);
     $('countAll').textContent = plural(countLunches(supporters));
 
-    // Who bought lunch
+    // Who tipped
     $('whoList').innerHTML = supporters.length ? supporters.slice(0, 50).map(s => {
       const qty = Number(s.qty) || 1;
       return '<div class="who"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
         '<div class="name">' + esc(s.name || 'Anonymous') + ' tipped you ' + plural(qty) + (s.weekly ? ' · weekly' : '') + '</div>' +
-        (s.message && !isHidden(s) ? '<div class="note">' + esc(s.message) + '</div>' : '') +
+        (s.message && !isHidden(s) && !isBlocked(s) ? '<div class="note">' + esc(s.message) + '</div>' : '') +
         '<div class="when">' + timeAgo(s.created_at) + '</div></div>' +
         '<div class="money">+$' + money(s.amount) + '</div></div>';
     }).join('') : '<p class="empty">No tips yet. Tap Show my code or share your link, and your first tip will show up here. 🍎</p>';
@@ -851,7 +851,18 @@
     if (on) ids.push(String(id));
     store(hiddenKey(), JSON.stringify(ids));
   }
-  function withMessages() { return supporters.filter(s => s.message && String(s.message).trim() && !isHidden(s)); }
+  // Blocked people: every message from that name is hidden (kept on this phone)
+  function blockKey() { return 'fmlb_blocked_' + me.id; }
+  function blockedNames() { try { return JSON.parse(store(blockKey()) || '[]'); } catch (e) { return []; } }
+  function whoKey(s) { return String(s.name || '').trim().toLowerCase(); }
+  function isBlocked(s) { const k = whoKey(s); return !!k && k !== 'anonymous' && blockedNames().indexOf(k) !== -1; }
+  function setBlocked(s, on) {
+    const k = whoKey(s); if (!k || k === 'anonymous') return false;
+    let names = blockedNames().filter(x => x !== k);
+    if (on) names.push(k);
+    store(blockKey(), JSON.stringify(names)); return true;
+  }
+  function withMessages() { return supporters.filter(s => s.message && String(s.message).trim() && !isHidden(s) && !isBlocked(s)); }
   function isUnread(s) { const r = store(msgKey()); return r ? new Date(s.created_at) > new Date(r) : false; }
   function renderMessages() {
     if (!me) return;
@@ -861,17 +872,18 @@
     $('msgBadge').textContent = unread > 9 ? '9+' : unread;
     $('msgBadge').classList.toggle('hidden', !unread);
     const q = $('msgSearch').value.trim().toLowerCase();
-    let list = msgFilter === 'unread' ? all.filter(isUnread) : msgFilter === 'hidden' ? supporters.filter(s => s.message && isHidden(s)) : all;
+    let list = msgFilter === 'unread' ? all.filter(isUnread) : msgFilter === 'hidden' ? supporters.filter(s => s.message && (isHidden(s) || isBlocked(s))) : all;
     if (q) list = list.filter(s => (String(s.name || '') + ' ' + s.message).toLowerCase().indexOf(q) !== -1);
     $('msgList').innerHTML = list.length ? list.map(s =>
       '<div class="who' + (isUnread(s) ? ' unread' : '') + '"><div class="avatar">' + esc(initial(s.name)) + '</div><div class="body">' +
       '<div class="name">' + esc(s.name || 'Anonymous') + '</div>' +
       '<div class="note">' + esc(s.message) + '</div>' +
       '<div class="when">' + timeAgo(s.created_at) + ' · ' + plural(Number(s.qty) || 1) + '</div>' +
-      '<div class="msg-acts">' + (isHidden(s) ? '<button data-act="unhide" data-id="' + esc(s.id) + '">Show again</button>' : '<button data-act="hide" data-id="' + esc(s.id) + '">Hide</button>') +
+      '<div class="msg-acts">' + (isBlocked(s) ? '<button data-act="unblock" data-id="' + esc(s.id) + '">Unblock</button>' : isHidden(s) ? '<button data-act="unhide" data-id="' + esc(s.id) + '">Show again</button>' : '<button data-act="hide" data-id="' + esc(s.id) + '">Hide</button>') +
+      (isBlocked(s) || !whoKey(s) || whoKey(s) === 'anonymous' ? '' : '<button class="rep" data-act="block" data-id="' + esc(s.id) + '">Block</button>') +
       '<button class="rep" data-act="report" data-id="' + esc(s.id) + '">Report</button></div></div>' +
       '<div class="money">+$' + money(s.amount) + '</div></div>'
-    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : msgFilter === 'hidden' ? 'No hidden messages.' : 'No messages yet. When someone tips you and leaves a note, it shows up here. 💌') + '</p>';
+    ).join('') : '<p class="empty">' + (q ? 'No messages match that search.' : msgFilter === 'unread' ? "You're all caught up." : msgFilter === 'hidden' ? 'No hidden or blocked messages.' : 'No messages yet. When someone tips you and leaves a note, it shows up here. 💌') + '</p>';
   }
   function markMessagesRead() {
     const all = withMessages();
@@ -889,6 +901,11 @@
     const s = supporters.find(x => String(x.id) === b.dataset.id); if (!s) return;
     if (b.dataset.act === 'hide') { setHidden(s.id, true); buzz('light'); toast('Message hidden. Find it under Hidden.'); renderAll(); }
     else if (b.dataset.act === 'unhide') { setHidden(s.id, false); buzz('light'); toast('Message shown again'); renderAll(); }
+    else if (b.dataset.act === 'block') {
+      if (!confirm('Block ' + (s.name || 'this person') + '? You won\'t see their messages anymore. You can unblock them under Hidden.')) return;
+      setBlocked(s, true); buzz('light'); toast((s.name || 'They') + ' is blocked. Find them under Hidden.'); renderAll();
+    }
+    else if (b.dataset.act === 'unblock') { setBlocked(s, false); buzz('light'); toast((s.name || 'They') + ' is unblocked'); renderAll(); }
     else if (b.dataset.act === 'report') {
       setHidden(s.id, true); renderAll();
       openWeb('mailto:' + HELP_EMAIL + '?subject=' + encodeURIComponent('Report a message') + '&body=' + encodeURIComponent('Page: ' + linkFor(me.handle) + '\nMessage ID: ' + s.id + '\nFrom: ' + (s.name || 'Anonymous') + '\nMessage: ' + s.message + '\n\nWhat is wrong with it:\n'));
@@ -919,9 +936,9 @@
     const bio = $('editBio').value.trim();
     const price = Math.round(parseFloat(String($('editPrice').value).replace(/[$,\s]/g, '')) * 100) / 100;
     if (!(price >= 1 && price <= 500)) { m.textContent = 'Price must be between $1 and $500.'; return; }
-    const goal_label = $('editGoalLabel').value.trim();
+    const goal_label = '';
     const g = parseInt($('editGoalAmount').value, 10);
-    const goal_amount = g > 0 ? g : 0;
+    const goal_amount = 0;
     const btn = $('saveEditBtn'); btn.disabled = true; btn.textContent = 'Saving...';
     try {
       const { data, error } = await sb.from('lunch_profiles').update({ name, tagline, bio, price, goal_label, goal_amount, thank_you: $('editThanks').value.trim(), accept_weekly: $('editWeekly').checked }).eq('id', me.id).select().single();
@@ -984,7 +1001,7 @@
   $('shareBtn').addEventListener('click', () => {
     const url = linkFor(me.handle);
     buzz('light');
-    if (navigator.share) navigator.share({ title: 'Fill My Lunch Bag', text: 'Buy me lunch on Fill My Lunch Bag 🍎', url }).catch(() => {});
+    if (navigator.share) navigator.share({ title: 'Fill My Lunch Bag', text: 'Tip me lunch on Fill My Lunch Bag 🍎', url }).catch(() => {});
     else $('copyBtn').click();
   });
   $('copyBtn').addEventListener('click', () => {
