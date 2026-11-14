@@ -514,9 +514,14 @@
 
   // Opens a web page in Safari (the app itself only shows its own screens)
   function openWeb(url) {
-    // In the iPhone app, any outside web address is handed to Safari by the app
     const C = window.Capacitor;
-    if (C && C.isNativePlatform && C.isNativePlatform()) { location.href = url; return; }
+    if (C && C.isNativePlatform && C.isNativePlatform()) {
+      // Web pages open in a Safari window on top of the app (with a Done button),
+      // never inside the app itself. Email links go to the Mail app.
+      const Browser = /^https?:/i.test(url) ? nativePlugin('Browser') : null;
+      if (Browser) { Browser.open({ url, presentationStyle: 'fullscreen' }).catch(() => {}); return; }
+      location.href = url; return;
+    }
     const a = document.createElement('a');
     a.href = url; a.target = '_blank'; a.rel = 'noopener';
     document.body.appendChild(a); a.click(); a.remove();
