@@ -51,6 +51,31 @@ workflows:
         script: |
           npx cap sync ios
 
+      - name: Turn on tip alerts (push notifications)
+        script: |
+          # 1) Tell Apple this app sends notifications
+          cat > ios/App/App/App.entitlements <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>aps-environment</key>
+            <string>production</string>
+          </dict>
+          </plist>
+          PLIST
+          sed -i '' 's/^[[:space:]]*//' ios/App/App/App.entitlements
+          grep -q "CODE_SIGN_ENTITLEMENTS" ios/App/App.xcodeproj/project.pbxproj || \
+            sed -i '' 's/\(PRODUCT_BUNDLE_IDENTIFIER = [^;]*;\)/\1\
+          CODE_SIGN_ENTITLEMENTS = App\/App.entitlements;/' ios/App/App.xcodeproj/project.pbxproj
+          grep -n "CODE_SIGN_ENTITLEMENTS" ios/App/App.xcodeproj/project.pbxproj
+          # 2) Hand the phone's alert address to the app (Capacitor push setup)
+          APPDELEGATE=ios/App/App/AppDelegate.swift
+          if ! grep -q "capacitorDidRegisterForRemoteNotifications" "$APPDELEGATE"; then
+            perl -0pi -e 's/(\n\}\s*)\z/\n    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {\n        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)\n    }\n\n    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {\n        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)\n    }\n}\n/' "$APPDELEGATE"
+          fi
+          grep -n "RemoteNotifications" "$APPDELEGATE"
+
       - name: Set version, build number, and permission messages
         script: |
           PLIST=ios/App/App/Info.plist

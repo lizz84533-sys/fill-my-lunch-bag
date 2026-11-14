@@ -19,6 +19,13 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'never',
     backgroundColor: '#FAF3E6'
+  },
+  plugins: {
+    // Tip alerts: when the app is open, the app shows its own "You got a tip!"
+    // pop-up (with the crunch), so iPhone only plays the sound here.
+    PushNotifications: {
+      presentationOptions: ['sound']
+    }
   }
 };
 

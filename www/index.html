@@ -712,6 +712,37 @@
   })();
 
 
+  // ---------- Tip alerts (iPhone notifications) ----------
+  // After login the app asks once to send notifications. If the creator says yes,
+  // the phone's alert address is saved in Supabase (lunch_push_tokens) so a
+  // "You got a tip!" alert can reach them even when the app is closed.
+  let pushToken = null, pushListening = false;
+  async function setupPush() {
+    const P = nativePlugin('PushNotifications');
+    if (!P || !me) return;
+    try {
+      if (!pushListening) {
+        pushListening = true;
+        P.addListener('registration', async t => {
+          pushToken = t && t.value; if (!pushToken || !me) return;
+          try { await sb.from('lunch_push_tokens').upsert({ token: pushToken, creator_id: me.id, platform: 'ios', updated_at: new Date().toISOString() }, { onConflict: 'token' }); } catch (e) {}
+        });
+        // App is open when a tip alert comes in: refresh so the pop-up + crunch shows
+        P.addListener('pushNotificationReceived', () => refresh(false));
+        // Creator tapped the alert: open their lunch bag
+        P.addListener('pushNotificationActionPerformed', () => { if (me) { show('sLunches'); refresh(false); } });
+      }
+      let st = await P.checkPermissions();
+      if (st.receive === 'prompt' || st.receive === 'prompt-with-rationale') st = await P.requestPermissions();
+      if (st.receive !== 'granted') return;
+      await P.register();
+    } catch (e) {}
+  }
+  async function forgetPush() {
+    if (!pushToken) return;
+    try { await sb.from('lunch_push_tokens').delete().eq('token', pushToken); } catch (e) {}
+  }
+
   // ---------- After login ----------
   async function loadMe() {
     const { data, error } = await sb.from('lunch_profiles').select('*').eq('id', session.user.id).maybeSingle();
@@ -737,6 +768,7 @@
       checkForNewLunches(true);
       show('sLunches');
       startPolling();
+      setupPush();
     } catch (e) {
       if (!me) { showLogin(); $('loginMsg').textContent = 'Could not load your page. Check your internet and log in again.'; return; }
       show('sLunches');
@@ -1092,6 +1124,7 @@
 
   async function logout() {
     stopPolling();
+    await forgetPush();
     try { await sb.auth.signOut(); } catch (e) {}
     session = null; me = null; supporters = []; posts = [];
     showLogin();
