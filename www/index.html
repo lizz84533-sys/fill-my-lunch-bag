@@ -224,6 +224,13 @@
   .gb-set { border: none; background: none; color: var(--kraft-dark); font-weight: 700; font-size: 14px; padding: 0; }
   .gb-track { height: 10px; border-radius: 999px; background: #EFE2CC; margin-top: 8px; overflow: hidden; }
   .gb-fill { height: 100%; width: 0; background: var(--kraft-dark); border-radius: 999px; transition: width 0.5s; }
+  .pv-head { text-align: center; padding: 22px 16px; }
+  .pv-head img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 8px; }
+  .pv-name { font-size: 34px; line-height: 1.15; color: var(--ink); }
+  .pv-tag { color: var(--soft); font-size: 15px; margin-top: 4px; }
+  .pv-bio { font-size: 15px; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; text-align: center; }
+  .pv-price { display: flex; justify-content: space-between; align-items: baseline; font-family: Georgia, serif; font-weight: 700; font-size: 19px; }
+  .pv-price b { font-size: 24px; }
   .me-card { text-align: center; padding: 22px 16px; }
   .me-card img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 8px; }
   .me-card .nm { font-weight: 700; font-size: 18px; margin-bottom: 14px; }
@@ -362,6 +369,25 @@
 </section>
 
 <!-- Edit my page -->
+<section class="screen no-tabs hidden" id="sPreview">
+  <div class="navbar"><button class="back-nav" id="prevBack" aria-label="Back">‹</button><div class="t">My page</div></div>
+  <p class="tip" style="text-align:center;margin:0 0 12px;">This is what people see when they open your link.</p>
+  <div class="card pv-head">
+    <img id="pvPic" src="logo.jpg" alt="">
+    <div class="pv-name hand-text" id="pvName"></div>
+    <div class="pv-tag" id="pvTag"></div>
+  </div>
+  <div class="card" id="pvBioCard"><div class="pv-bio" id="pvBio"></div></div>
+  <div class="card pv-tip">
+    <div class="pv-price"><span>Tip a lunch</span><b id="pvPrice">$0</b></div>
+    <p class="tip" style="margin:6px 0 12px;">People tip you from your link or by scanning your code. Tips are paid on the website with Stripe.</p>
+    <button class="btn" id="pvCode">Show my code</button>
+  </div>
+  <div class="list-head"><h3>Posts</h3></div>
+  <div class="card" id="pvPosts"></div>
+  <button class="btn ghost" id="pvEdit" style="margin-top:4px;">Edit my page</button>
+</section>
+
 <section class="screen no-tabs hidden" id="sEdit">
   <button class="back-btn" id="editBack">‹ Back</button>
   <div class="head"><h1>Edit my page</h1></div>
@@ -432,7 +458,7 @@
   </div>
   <div class="group">
     <button class="set-item" id="editPageBtn">Edit my page <span class="arrow">›</span></button>
-    <button class="set-item" id="viewPageBtn">See my page <span class="arrow">↗</span></button>
+    <button class="set-item" id="viewPageBtn">See my page <span class="arrow">›</span></button>
     <button class="set-item" id="soundBtn">Crunch sound <span class="arrow" id="soundState">On</span></button>
     <button class="set-item" id="helpBtn">Help <span class="arrow">↗</span></button>
     <button class="set-item" id="termsBtn">Terms and privacy <span class="arrow">↗</span></button>
@@ -564,7 +590,7 @@
 
   // ---------- Screens ----------
   let lastTab = 'sLunches';
-  const SCREENS = ['sLoading', 'sLogin', 'sNoPage', 'sLunches', 'sPosts', 'sMessages', 'sShare', 'sSettings', 'sEdit'];
+  const SCREENS = ['sLoading', 'sLogin', 'sNoPage', 'sLunches', 'sPosts', 'sMessages', 'sShare', 'sSettings', 'sEdit', 'sPreview'];
   function show(id) {
     SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id));
     const tabbed = ['sLunches', 'sPosts', 'sMessages', 'sShare'].indexOf(id) !== -1;
@@ -1091,7 +1117,23 @@
   $('soundBtn').addEventListener('click', () => { store('fmlb_sound', soundOn() ? 'off' : 'on'); paintSound(); if (soundOn()) crunch(); buzz('light'); });
   $('editPageBtn').addEventListener('click', openEdit);
   $('setGoalBtn').addEventListener('click', openEdit);
-  $('viewPageBtn').addEventListener('click', () => openWeb(linkFor(me.handle)));
+  function openPreview() {
+    if (!me) return;
+    $('pvPic').src = me.avatar_url || 'logo.jpg';
+    $('pvName').textContent = me.name || '';
+    $('pvTag').textContent = me.tagline || DEFAULT_TAGLINE;
+    $('pvBio').textContent = me.bio || '';
+    $('pvBioCard').classList.toggle('hidden', !me.bio);
+    $('pvPrice').textContent = '$' + money(me.price || 0);
+    $('pvPosts').innerHTML = posts.length ? posts.map(p =>
+      '<div class="post"><div class="ptitle" style="padding-right:0">' + esc(p.title) + '</div><div class="pbody">' + esc(p.body) + '</div>' +
+      '<div class="pwhen">' + timeAgo(p.created_at) + '</div></div>').join('') : '<p class="empty">No posts yet.</p>';
+    buzz('light'); show('sPreview');
+  }
+  $('viewPageBtn').addEventListener('click', openPreview);
+  $('prevBack').addEventListener('click', () => { buzz('light'); show('sSettings'); });
+  $('pvCode').addEventListener('click', () => { buzz('light'); show('sShare'); });
+  $('pvEdit').addEventListener('click', () => openEdit());
   $('termsBtn').addEventListener('click', () => openWeb(SITE + '/terms.html'));
   $('helpBtn').addEventListener('click', () => openWeb('mailto:' + HELP_EMAIL + '?subject=' + encodeURIComponent('Fill My Lunch Bag app help')));
 
