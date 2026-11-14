@@ -494,7 +494,7 @@
   function sumAmt(list) { return Math.round(list.reduce((a, s) => a + Number(s.amount || 0), 0) * 100) / 100; }
   function countLunches(list) { return list.reduce((a, s) => a + (Number(s.qty) || 1), 0); }
   function plural(n) { return n + (n === 1 ? ' lunch' : ' lunches'); }
-  function initial(name) { return (String(name || '').trim()[0] || '🍎').toUpperCase(); }
+  function initial(name) { return (Array.from(String(name || '').trim())[0] || '🍎').toUpperCase(); }
   function linkFor(handle) { return SITE + '/?u=' + handle; }
   function timeAgo(d) {
     const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
@@ -738,6 +738,7 @@
       show('sLunches');
       startPolling();
     } catch (e) {
+      if (!me) { showLogin(); $('loginMsg').textContent = 'Could not load your page. Check your internet and log in again.'; return; }
       show('sLunches');
       $('whoList').innerHTML = '<p class="empty">Could not load your tips. Check your internet, then close and reopen the app.</p>';
     }
@@ -937,7 +938,6 @@
     const price = Math.round(parseFloat(String($('editPrice').value).replace(/[$,\s]/g, '')) * 100) / 100;
     if (!(price >= 1 && price <= 500)) { m.textContent = 'Price must be between $1 and $500.'; return; }
     const goal_label = '';
-    const g = parseInt($('editGoalAmount').value, 10);
     const goal_amount = 0;
     const btn = $('saveEditBtn'); btn.disabled = true; btn.textContent = 'Saving...';
     try {
