@@ -19,6 +19,12 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'never',
     backgroundColor: '#FAF3E6'
+  },
+  plugins: {
+    // Show tip alerts even while the app is open
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert']
+    }
   }
 };
 

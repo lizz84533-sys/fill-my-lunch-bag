@@ -460,6 +460,7 @@
     <button class="set-item" id="editPageBtn">Edit my page <span class="arrow">›</span></button>
     <button class="set-item" id="viewPageBtn">See my page <span class="arrow">›</span></button>
     <button class="set-item" id="soundBtn">Crunch sound <span class="arrow" id="soundState">On</span></button>
+    <button class="set-item hidden" id="alertsBtn">Tip alerts <span class="arrow" id="alertsState">On</span></button>
     <button class="set-item" id="helpBtn">Help <span class="arrow">↗</span></button>
     <button class="set-item" id="termsBtn">Terms and privacy <span class="arrow">↗</span></button>
     <button class="set-item" id="deleteBtn" style="color:var(--apple);">Delete account <span class="arrow"></span></button>
@@ -768,6 +769,7 @@
       checkForNewLunches(true);
       show('sLunches');
       startPolling();
+      setTimeout(setupPush, 800);
     } catch (e) {
       if (!me) { showLogin(); $('loginMsg').textContent = 'Could not load your page. Check your internet and log in again.'; return; }
       show('sLunches');
@@ -1115,6 +1117,62 @@
   // ---------- Settings ----------
   function paintSound() { $('soundState').textContent = soundOn() ? 'On' : 'Off'; }
   $('soundBtn').addEventListener('click', () => { store('fmlb_sound', soundOn() ? 'off' : 'on'); paintSound(); if (soundOn()) crunch(); buzz('light'); });
+
+  // ---------- Tip alerts (lock-screen notifications) ----------
+  // The phone gets a code from Apple. We save it in push_tokens so the
+  // send-push function knows which phone to alert when someone tips.
+  let pushListening = false;
+  function alertsOn() { return store('fmlb_alerts') !== 'off'; }
+  function paintAlerts() { $('alertsState').textContent = alertsOn() ? 'On' : 'Off'; }
+  function pushPlugin() { return nativePlugin('PushNotifications'); }
+  async function saveToken(token) {
+    if (!token) return;
+    store('fmlb_push_token', token);
+    if (!session || !session.user || !alertsOn()) return;
+    try {
+      // This phone's code belongs only to whoever is logged in right now
+      await sb.from('push_tokens').delete().eq('token', token);
+      await sb.from('push_tokens').insert({ user_id: session.user.id, token });
+    } catch (e) {}
+  }
+  async function removeToken() {
+    const token = store('fmlb_push_token');
+    if (!token || !session) return;
+    try { await sb.from('push_tokens').delete().eq('token', token); } catch (e) {}
+  }
+  // Returns true when alerts are on, false when iPhone Settings has them blocked
+  async function setupPush() {
+    const P = pushPlugin();
+    if (!P || !session || !alertsOn()) return null;
+    try {
+      if (!pushListening) {
+        pushListening = true;
+        P.addListener('registration', t => saveToken(t && t.value));
+        P.addListener('registrationError', () => {});
+        P.addListener('pushNotificationReceived', () => { if (me) refresh(false); });
+        P.addListener('pushNotificationActionPerformed', () => { if (me) { refresh(false); show('sLunches'); } });
+      }
+      let perm = await P.checkPermissions();
+      if (perm.receive !== 'granted' && perm.receive !== 'denied') perm = await P.requestPermissions();
+      if (perm.receive !== 'granted') return false;
+      await P.register();
+      return true;
+    } catch (e) { return null; }
+  }
+  if (pushPlugin()) $('alertsBtn').classList.remove('hidden');
+  $('alertsBtn').addEventListener('click', async () => {
+    buzz('light');
+    if (alertsOn()) {
+      store('fmlb_alerts', 'off'); paintAlerts();
+      await removeToken();
+      toast('Tip alerts off');
+    } else {
+      store('fmlb_alerts', 'on'); paintAlerts();
+      const ok = await setupPush();
+      if (ok === false) alert('Notifications are turned off for Fill My Lunch Bag.\n\nTo get tip alerts, open your iPhone Settings, tap Notifications, tap Fill My Lunch Bag, and turn on Allow Notifications.');
+      else toast('Tip alerts on');
+    }
+  });
   $('editPageBtn').addEventListener('click', openEdit);
   $('setGoalBtn').addEventListener('click', openEdit);
   function openPreview() {
@@ -1139,6 +1197,7 @@
 
   async function logout() {
     stopPolling();
+    await removeToken();
     try { await sb.auth.signOut(); } catch (e) {}
     session = null; me = null; supporters = []; posts = [];
     showLogin();
@@ -1176,6 +1235,7 @@
   });
   (async function start() {
     paintSound();
+    paintAlerts();
     try {
       const { data } = await sb.auth.getSession();
       session = data.session;
